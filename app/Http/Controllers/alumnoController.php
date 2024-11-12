@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class alumnoController extends Controller
+class AlumnoController extends Controller
 {
     public function listarAlumnos()
     {

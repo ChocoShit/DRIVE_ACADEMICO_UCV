@@ -32,7 +32,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/crear', [AlumnoController::class, 'crearAlumno'])->name('alumnos.crear');
         Route::put('/actualizar/{id}', [AlumnoController::class, 'actualizarAlumno'])->name('alumnos.actualizar');
         Route::put('/estado/{id}', [AlumnoController::class, 'cambiarEstado'])->name('alumnos.estado');
-        //Route::get('/obtener/{id}', [AlumnoController::class, 'obtenerAlumno'])->name('alumnos.obtener');
         Route::put('/editar/{id}', [AlumnoController::class, 'editarAlumno'])->name('alumnos.editar');
     });
 
