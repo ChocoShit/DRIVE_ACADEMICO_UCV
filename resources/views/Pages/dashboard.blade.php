@@ -546,9 +546,14 @@ DRIVE UCV
                 </div>
 
                 <!-- Password (solo visible al crear) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" name="password" required minlength="6"
+                <div class="mb-4" id="password-container">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                        Contraseña
+                    </label>
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           minlength="6"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
             </div>
@@ -1454,8 +1459,8 @@ async function guardarDocente(event) {
             username: formData.get('username')
         };
 
-        // Si es nuevo docente, agregar password
-        if (!editId) {
+        // Solo incluir password si es nuevo docente o si se ha ingresado uno nuevo
+        if (!editId || formData.get('password')) {
             data.password = formData.get('password');
         }
 
@@ -1491,7 +1496,7 @@ async function guardarDocente(event) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message
+            text: error.message || 'Error al procesar la solicitud'
         });
     }
 }
@@ -1583,17 +1588,16 @@ function mostrarModalCrearDocente() {
     const modal = document.getElementById('modal-docente');
     const form = document.getElementById('form-docente');
     const titulo = document.getElementById('modal-docente-titulo');
+    const passwordField = form.querySelector('[name="password"]');
+    const passwordContainer = passwordField.closest('div');
 
     // Limpiar el formulario
     form.reset();
-
-    // Eliminar el ID de edición si existe
     delete form.dataset.editId;
 
-    // Mostrar el campo de contraseña para nuevo docente
-    const passwordField = form.querySelector('[name="password"]');
-    if (passwordField) {
-        passwordField.closest('div').style.display = 'block';
+    // Mostrar y hacer requerido el campo de contraseña para nuevo docente
+    if (passwordContainer) {
+        passwordContainer.style.display = 'block';
         passwordField.required = true;
     }
 

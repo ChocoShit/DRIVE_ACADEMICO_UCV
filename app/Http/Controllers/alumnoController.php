@@ -116,10 +116,12 @@ class AlumnoController extends Controller
                 $request->edad,
                 $request->email,
                 $request->celular,
-                $request->username,
-                $request->ciclo
+                $request->ciclo,
+                $request->username
             ]);
-
+            if (empty($result)) {
+                throw new \Exception('No se pudo actualizar el alumno');
+            }
             return response()->json([
                 'success' => true,
                 'message' => 'Alumno actualizado exitosamente',
