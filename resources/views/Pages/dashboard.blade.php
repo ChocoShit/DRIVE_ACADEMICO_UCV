@@ -29,18 +29,19 @@ DRIVE UCV
                     <i class="fas fa-layer-group w-6"></i>
                     <span>Gestión de Secciones</span>
                 </a>
+
                 <a href="#" data-section="asignaciones" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
                     <i class="fas fa-tasks w-6"></i>
                     <span>Asignaciones</span>
                 </a>
                 @elseif( auth()->user()->id_tipo_usuario == 2 )
-                <a href="#" data-section="docentes" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
-                    <i class="fas fa-chalkboard-teacher w-6"></i>
-                    <span>Gestión de Docentes</span>
+                <a href="#" data-section="alumnos" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
+                    <i class="fas fa-users w-6"></i>
+                    <span>Gestión de Alumnos</span>
                 </a>
-                <a href="#" data-section="secciones" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
-                    <i class="fas fa-layer-group w-6"></i>
-                    <span>Gestión de Secciones</span>
+                <a href="#" data-section="asignaciones" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
+                    <i class="fas fa-tasks w-6"></i>
+                    <span>Asignaciones</span>
                 </a>
                 @endif
                 <a href="#" data-section="archivos" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
@@ -177,9 +178,19 @@ DRIVE UCV
                                     <option value="nombres">Nombres</option>
                                     <option value="apellidos">Apellidos</option>
                                     <option value="email">Email</option>
-                                    <option value="ciclo">Ciclo</option>
                                     <option value="username">Usuario</option>
                                 </select>
+                                <select id="filterCiclo" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="">Todos los ciclos</option>
+                                    <option value="IX">IX Ciclo</option>
+                                    <option value="X">X Ciclo</option>
+                                </select>
+                                <select id="filterEstado" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="">Todos los estados</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
                                 <button onclick="cargarAlumnos()"
                                         class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                                     <i class="fas fa-sync-alt"></i>
@@ -195,7 +206,7 @@ DRIVE UCV
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombres</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciclo</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
@@ -223,6 +234,7 @@ DRIVE UCV
                         </div>
                         <form id="form-alumno" onsubmit="guardarAlumno(event)">
                             <div class="grid grid-cols-2 gap-4">
+
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Nombres</label>
                                     <input type="text" name="nombres" required
@@ -234,8 +246,8 @@ DRIVE UCV
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Edad</label>
-                                    <input type="number" name="edad" required
+                                    <label class="block text-sm font-medium text-gray-700">Código</label>
+                                    <input type="text" name="codigo" required
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 </div>
                                 <div>
@@ -297,13 +309,14 @@ DRIVE UCV
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombres</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Apellidos</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Edad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Celular</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Secciones Asignadas</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ÚLTIMA MODIFICACIÓN</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-docentes">
@@ -503,7 +516,6 @@ DRIVE UCV
 
         <form id="form-docente" onsubmit="guardarDocente(event)">
             <div class="grid grid-cols-2 gap-4">
-                <!-- Nombres -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nombres</label>
                     <input type="text" name="nombres" required
@@ -519,8 +531,8 @@ DRIVE UCV
 
                 <!-- Edad -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Edad</label>
-                    <input type="number" name="edad" required min="18" max="100"
+                    <label class="block text-sm font-medium text-gray-700">Código</label>
+                    <input type="number" name="código" required 
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
 
@@ -573,29 +585,9 @@ DRIVE UCV
 </div>
 
 <!-- Tabla de Docentes -->
-<div class="overflow-x-auto">
-    <table class="min-w-full bg-white">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombres</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Apellidos</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Edad</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Celular</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Secciones Asignadas</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ÚLTIMA MODIFICACIÓN</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ACCIONES</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-docentes">
-            <!-- Se llena dinámicamente -->
-        </tbody>
-    </table>
-</div>
-@endsection
 
+@endsection
+ <!-------------------------------------------------------- scripts --------------------------------------------------------------------->
 @section('script')
 <script>
 $(document).ready(function() {
@@ -755,7 +747,7 @@ async function cargarAlumnos() {
                 row.innerHTML = `
                     <td class="px-6 py-4">${alumno.nombres}</td>
                     <td class="px-6 py-4">${alumno.apellidos}</td>
-                    <td class="px-6 py-4">${alumno.edad}</td>
+                    <td class="px-6 py-4">${alumno.codigo}</td>
                     <td class="px-6 py-4">${alumno.ciclo}</td>
                     <td class="px-6 py-4">${alumno.email}</td>
                     <td class="px-6 py-4">${alumno.celular || '-'}</td>
@@ -944,9 +936,10 @@ async function editarAlumno(id) {
             const form = document.getElementById('form-alumno');
 
             // Llenar el formulario con los datos existentes
+
             form.querySelector('[name="nombres"]').value = alumno.nombres;
             form.querySelector('[name="apellidos"]').value = alumno.apellidos;
-            form.querySelector('[name="edad"]').value = alumno.edad;
+            form.querySelector('[name="codigo"]').value = alumno.codigo;
             form.querySelector('[name="email"]').value = alumno.email;
             form.querySelector('[name="celular"]').value = alumno.celular || '';
             form.querySelector('[name="username"]').value = alumno.username;
@@ -1307,7 +1300,7 @@ function mostrarError(mensaje) {
     });
 }
 
-// Cargar docentes
+// Cargar docentes////////////////////////////////////////////////////
 async function cargarDocentes() {
     try {
         const response = await fetch('/drive_ucv/docentes/listar');
@@ -1315,20 +1308,7 @@ async function cargarDocentes() {
 
         if (result.success) {
             const tablaDocentes = document.getElementById('tabla-docentes');
-            tablaDocentes.innerHTML = `
-                <tr class="bg-gray-100">
-                    <th class="px-6 py-3">NOMBRES</th>
-                    <th class="px-6 py-3">APELLIDOS</th>
-                    <th class="px-6 py-3">EDAD</th>
-                    <th class="px-6 py-3">EMAIL</th>
-                    <th class="px-6 py-3">CELULAR</th>
-                    <th class="px-6 py-3">USUARIO</th>
-                    <th class="px-6 py-3">SECCIONES ASIGNADAS</th>
-                    <th class="px-6 py-3">ESTADO</th>
-                    <th class="px-6 py-3">ÚLTIMA MODIFICACIÓN</th>
-                    <th class="px-6 py-3">ACCIONES</th>
-                </tr>
-            `;
+
 
             result.data.forEach(docente => {
                 const estadoActual = docente.status == 1 || docente.status === '1';
@@ -1342,7 +1322,7 @@ async function cargarDocentes() {
                 row.innerHTML = `
                     <td class="px-6 py-4">${docente.nombres}</td>
                     <td class="px-6 py-4">${docente.apellidos}</td>
-                    <td class="px-6 py-4">${docente.edad}</td>
+                    <td class="px-6 py-4">${docente.codigo}</td>
                     <td class="px-6 py-4">${docente.email}</td>
                     <td class="px-6 py-4">${docente.celular || '-'}</td>
                     <td class="px-6 py-4">${docente.username}</td>
@@ -1411,9 +1391,10 @@ async function editarDocente(id) {
             const form = document.getElementById('form-docente');
 
             // Llenar el formulario con los datos existentes
+
             form.querySelector('[name="nombres"]').value = docente.nombres;
             form.querySelector('[name="apellidos"]').value = docente.apellidos;
-            form.querySelector('[name="edad"]').value = docente.edad;
+            form.querySelector('[name="codigo"]').value = docente.codigo;
             form.querySelector('[name="email"]').value = docente.email;
             form.querySelector('[name="celular"]').value = docente.celular || '';
             form.querySelector('[name="username"]').value = docente.username;
@@ -1451,8 +1432,10 @@ async function guardarDocente(event) {
         const editId = form.dataset.editId;
 
         const data = {
+
             nombres: formData.get('nombres'),
             apellidos: formData.get('apellidos'),
+            codigo: formData.get('codigo'),
             edad: formData.get('edad'),
             email: formData.get('email'),
             celular: formData.get('celular'),
@@ -1511,9 +1494,10 @@ async function guardarAlumno(event) {
         const editId = form.dataset.editId;
 
         const data = {
+
             nombres: formData.get('nombres'),
             apellidos: formData.get('apellidos'),
-            edad: formData.get('edad'),
+            codigo: formData.get('codigo'),
             email: formData.get('email'),
             celular: formData.get('celular'),
             username: formData.get('username'),
