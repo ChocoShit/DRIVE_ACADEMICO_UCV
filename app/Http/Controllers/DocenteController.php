@@ -37,7 +37,7 @@ class DocenteController extends Controller
                 u.id_usuario,
                 dp.nombres,
                 dp.apellidos,
-                dp.edad,
+                dp.codigo,
                 dp.email,
                 dp.celular,
                 u.username,
@@ -102,7 +102,7 @@ class DocenteController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'edad' => 'required|integer|min:18|max:100',
+                'codigo' => 'required|integer|min:18|max:100',
                 'email' => 'required|email|max:100|unique:datos_persona,email',
                 'celular' => 'nullable|string|max:15',
                 'username' => 'required|string|max:50|unique:usuario,username',
@@ -115,7 +115,7 @@ class DocenteController extends Controller
             $result = DB::select('CALL sp_crear_docente(?, ?, ?, ?, ?, ?, ?)', [
                 $request->nombres,
                 $request->apellidos,
-                $request->edad,
+                $request->codigo,
                 $request->email,
                 $request->celular,
                 $request->username,
@@ -143,7 +143,7 @@ class DocenteController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'edad' => 'required|integer|min:18|max:100',
+                'codigo' => 'required|integer|min:18|max:100',
                 'email' => 'required|email|max:100',
                 'celular' => 'nullable|string|max:15',
                 'username' => 'required|string|max:50'
@@ -153,7 +153,7 @@ class DocenteController extends Controller
                 $id,
                 $request->nombres,
                 $request->apellidos,
-                $request->edad,
+                $request->codigo,
                 $request->email,
                 $request->celular,
                 $request->username

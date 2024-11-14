@@ -55,7 +55,7 @@ class AlumnoController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'edad' => 'required|integer|min:18|max:100',
+                'codigo' => 'required|integer|min:18|max:100',
                 'ciclo' => 'required|string|max:2',
                 'email' => 'required|email|unique:datos_persona,email',
                 'celular' => 'nullable|string|max:15',
@@ -70,7 +70,7 @@ class AlumnoController extends Controller
             $resultado = DB::select('CALL sp_crear_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
                 $request->nombres,
                 $request->apellidos,
-                $request->edad,
+                $request->codigo,
                 $request->ciclo,
                 $request->email,
                 $request->celular,
@@ -102,7 +102,7 @@ class AlumnoController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'edad' => 'required|integer|min:18|max:100',
+                'codigo' => 'required|integer|min:18|max:100',
                 'email' => 'required|email|unique:datos_persona,email,'.$id.',id_usuario',
                 'celular' => 'nullable|string|max:15',
                 'username' => 'required|string|unique:usuario,username,'.$id.',id_usuario',
@@ -113,7 +113,7 @@ class AlumnoController extends Controller
                 $id,
                 $request->nombres,
                 $request->apellidos,
-                $request->edad,
+                $request->codigo,
                 $request->email,
                 $request->celular,
                 $request->ciclo,
@@ -222,7 +222,7 @@ class AlumnoController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'edad' => 'required|integer|min:16|max:100',
+                'codigo' => 'required|integer|min:16|max:100',
                 'email' => 'required|email|max:100',
                 'celular' => 'nullable|string|max:15',
                 'ciclo' => 'required|string|max:2',
@@ -233,7 +233,7 @@ class AlumnoController extends Controller
                 $id,
                 $request->nombres,
                 $request->apellidos,
-                $request->edad,
+                $request->codigo,
                 $request->email,
                 $request->celular,
                 $request->ciclo,
