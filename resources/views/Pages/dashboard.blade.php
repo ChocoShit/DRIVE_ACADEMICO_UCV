@@ -151,7 +151,7 @@ DRIVE UCV
                 </div>
             </section>
 
-            <!-- Sección Alumnos -->
+            <!------------------------------------------------------------------- Sección Alumnos ------------------------------------------------------>
             <section id="alumnos-section" class="section-content hidden">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex justify-between items-center mb-6">
@@ -173,13 +173,7 @@ DRIVE UCV
                                        onkeyup="filtrarAlumnos()">
                             </div>
                             <div class="flex gap-2">
-                                <select id="searchField" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                                    <option value="all">Todos los campos</option>
-                                    <option value="nombres">Nombres</option>
-                                    <option value="apellidos">Apellidos</option>
-                                    <option value="email">Email</option>
-                                    <option value="username">Usuario</option>
-                                </select>
+
                                 <select id="filterCiclo" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                     <option value="">Todos los ciclos</option>
                                     <option value="IX">IX Ciclo</option>
@@ -199,7 +193,7 @@ DRIVE UCV
                         </div>
                     </div>
 
-                    <!-- Tabla de Alumnos -->
+                    <!---- Tabla de Alumnos -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white">
                             <thead class="bg-gray-100">
@@ -291,7 +285,7 @@ DRIVE UCV
                 </div>
             </section>
 
-            <!-- Sección Docentes -->
+            <!------------------------------------------------------------------- Sección Docentes ----------------------------------------------------->
             <section id="docentes-section" class="section-content hidden">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex justify-between items-center mb-6">
@@ -300,6 +294,30 @@ DRIVE UCV
                                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
                             <i class="fas fa-plus mr-2"></i> Nuevo Docente
                         </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <input type="text"
+                                       id="searchInput"
+                                       placeholder="Buscar docente..."
+                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                       onkeyup="filtrarDocentes()">
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="filterEstado" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="">Todos los estados</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                                <button onclick="cargarDocentes()"
+                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Tabla de Docentes -->
@@ -532,7 +550,7 @@ DRIVE UCV
                 <!-- Edad -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Código</label>
-                    <input type="number" name="código" required 
+                    <input type="number" name="código" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
 
@@ -591,28 +609,20 @@ DRIVE UCV
 @section('script')
 <script>
 $(document).ready(function() {
-    console.log('Documento listo');
+    // Recuperar la última sección activa del localStorage
+    const ultimaSeccion = localStorage.getItem('seccionActiva') || 'resumen';
+
+    // Activar la última sección vista
+    activarSeccion(ultimaSeccion);
 
     // Manejo del menú de navegación
     $('.nav-link').click(function(e) {
         e.preventDefault();
-        console.log('Click en nav-link');
-
-        // Remover active de todos los enlaces
-        $('.nav-link').removeClass('active bg-gray-700');
-
-        // Agregar active al enlace clickeado
-        $(this).addClass('active bg-gray-700');
-
-        // Obtener la sección a mostrar
         const sectionId = $(this).data('section');
-        console.log('Sección seleccionada:', sectionId);
+        activarSeccion(sectionId);
 
-        // Ocultar todas las secciones
-        $('.section-content').addClass('hidden');
-
-        // Mostrar la sección seleccionada
-        $(`#${sectionId}-section`).removeClass('hidden');
+        // Guardar la sección activa en localStorage
+        localStorage.setItem('seccionActiva', sectionId);
     });
 
     // Manejo del menú de perfil
@@ -706,6 +716,35 @@ $(document).ready(function() {
     // Mostrar sección inicial (resumen)
     $('#resumen-section').removeClass('hidden');
 });
+
+// Función para activar una sección específica
+function activarSeccion(sectionId) {
+    // Remover active de todos los enlaces
+    $('.nav-link').removeClass('active bg-gray-700');
+
+    // Agregar active al enlace correspondiente
+    $(`[data-section="${sectionId}"]`).addClass('active bg-gray-700');
+
+    // Ocultar todas las secciones
+    $('.section-content').addClass('hidden');
+
+    // Mostrar la sección seleccionada
+    $(`#${sectionId}-section`).removeClass('hidden');
+
+    // Cargar datos según la sección
+    switch(sectionId) {
+        case 'alumnos':
+            cargarAlumnos();
+            break;
+        case 'docentes':
+            cargarDocentes();
+            break;
+        case 'secciones':
+            cargarSecciones();
+            break;
+        // Agregar más casos según sea necesario
+    }
+}
 
 // Funciones para gestión de alumnos
 document.addEventListener('DOMContentLoaded', function() {
@@ -841,14 +880,16 @@ async function guardarAlumno(event) {
         const result = await response.json();
 
         if (result.success) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: editId ? 'Alumno actualizado correctamente' : 'Alumno creado correctamente'
+                text: editId ? 'Alumno actualizado correctamente' : 'Alumno creado correctamente',
+                timer: 1500,
+                showConfirmButton: false
             });
 
             cerrarModalAlumno();
-            await cargarAlumnos();
+            activarSeccion('alumnos');
         } else {
             throw new Error(result.message);
         }
@@ -899,6 +940,10 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
                 showConfirmButton: false,
                 timer: 1500
             });
+
+            // Mantener la sección actual
+            const seccionActual = localStorage.getItem('seccionActiva');
+            activarSeccion(seccionActual);
         } else {
             throw new Error(result.message || 'Error al actualizar el estado');
         }
@@ -1271,13 +1316,16 @@ async function guardarSeccion(event) {
         const result = await response.json();
 
         if (result.success) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: editandoSeccionId ? 'Sección actualizada correctamente' : 'Sección creada correctamente'
+                text: editandoSeccionId ? 'Sección actualizada correctamente' : 'Sección creada correctamente',
+                timer: 1500,
+                showConfirmButton: false
             });
+
             cerrarModalSeccion();
-            cargarSecciones();
+            activarSeccion('secciones');
         } else {
             throw new Error(result.message);
         }
@@ -1463,14 +1511,16 @@ async function guardarDocente(event) {
         const result = await response.json();
 
         if (result.success) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: editId ? 'Docente actualizado correctamente' : 'Docente creado correctamente'
+                text: editId ? 'Docente actualizado correctamente' : 'Docente creado correctamente',
+                timer: 1500,
+                showConfirmButton: false
             });
 
             cerrarModalDocente();
-            cargarDocentes();
+            activarSeccion('docentes');
         } else {
             throw new Error(result.message);
         }
@@ -1525,14 +1575,16 @@ async function guardarAlumno(event) {
         const result = await response.json();
 
         if (result.success) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: editId ? 'Alumno actualizado correctamente' : 'Alumno creado correctamente'
+                text: editId ? 'Alumno actualizado correctamente' : 'Alumno creado correctamente',
+                timer: 1500,
+                showConfirmButton: false
             });
 
             cerrarModalAlumno();
-            cargarAlumnos();
+            activarSeccion('alumnos');
         } else {
             throw new Error(result.message);
         }
