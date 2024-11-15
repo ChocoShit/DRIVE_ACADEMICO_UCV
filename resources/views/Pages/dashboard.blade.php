@@ -167,28 +167,29 @@ DRIVE UCV
                         <div class="flex gap-4">
                             <div class="flex-1">
                                 <input type="text"
-                                       id="searchInput"
+                                       id="searchAlumno"
                                        placeholder="Buscar alumno..."
-                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                                       onkeyup="filtrarAlumnos()">
+                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                             </div>
                             <div class="flex gap-2">
-
                                 <select id="filterCiclo" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                     <option value="">Todos los ciclos</option>
                                     <option value="IX">IX Ciclo</option>
                                     <option value="X">X Ciclo</option>
                                 </select>
-                                <select id="filterEstado" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                <select id="filterEstadoAlumno" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                     <option value="">Todos los estados</option>
                                     <option value="1">Activo</option>
                                     <option value="0">Inactivo</option>
                                 </select>
-                            </div>
-                                <button onclick="cargarAlumnos()"
-                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
+                                <div class="flex gap-2">
+                                    <input type="date"
+                                           id="fechaInicioAlumno"
+                                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <input type="date"
+                                           id="fechaFinAlumno"
+                                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -231,7 +232,10 @@ DRIVE UCV
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Nombres</label>
-                                    <input type="text" name="nombres" required
+                                    <input type="text"
+                                           name="nombres"
+                                           required
+                                           onchange="guardarDatosTemporales(event)"
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 </div>
                                 <div>
@@ -241,42 +245,56 @@ DRIVE UCV
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Código</label>
-                                    <input type="text" name="codigo" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <input type="text" name="codigo" requiredmaxlength="10" pattern="[0-9]{10}"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="Ingrese código de 10 dígitos">
+                                    <span class="text-xs text-gray-500">El código debe tener 10 dígitos numéricos</span>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Ciclo</label>
-                                    <input type="text" name="ciclo" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <select name="ciclo" required class="mt-1 block w-full rounded-md focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Seleccione un ciclo</option>
+                                        <option value="IX">IX Ciclo</option>
+                                        <option value="X">X Ciclo</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" name="email" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <label class="block text-sm font-medium text-gray-700">Email Institucional</label>
+                                    <input type="email" name="email" required pattern="[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           placeholder="ejemplo@ucvvirtual.edu.pe"
+                                           title="Por favor ingrese un correo institucional válido (@ucvvirtual.edu.pe)">
+                                    <span class="text-xs text-gray-500">Use su correo institucional (@ucvvirtual.edu.pe)</span>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Celular</label>
-                                    <input type="text" name="celular" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <input type="text" name="celular"  maxlength="9"pattern="[0-9]{9}"oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9)"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           placeholder="Ingrese número de celular"
+                                           title="Por favor ingrese un número de 9 dígitos">
+                                    <span class="text-xs text-gray-500">El número debe tener 9 dígitos</span>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                                    <input type="text" name="username" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <input type="text" name="username"required minlength="4" onkeyup="validarUsuarioDisponible(this.value)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           placeholder="Ingrese nombre de usuario">
+                                    <span id="username-message" class="text-xs"></span>
                                 </div>
-                                <div id="password-field">
+                                <div>
                                     <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                                    <input type="password" name="password" required
-                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <input type="password" name="password" required minlength="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           placeholder="Ingrese contraseña">
+                                    <span class="text-xs text-gray-500">La contraseña debe tener al menos 6 caracteres</span>
                                 </div>
                             </div>
-                            <div class="mt-6 flex justify-end space-x-3">
-                                <button type="button" onclick="cerrarModalAlumno()"
-                                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                            <div class="mt-4 flex justify-end">
+                                <button type="button"
+                                        onclick="cerrarModalAlumno()"
+                                        class="mr-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
                                     Cancelar
                                 </button>
                                 <button type="submit"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
                                     Guardar
                                 </button>
                             </div>
@@ -300,22 +318,24 @@ DRIVE UCV
                         <div class="flex gap-4">
                             <div class="flex-1">
                                 <input type="text"
-                                       id="searchInput"
+                                       id="searchDocente"
                                        placeholder="Buscar docente..."
-                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-                                       onkeyup="filtrarDocentes()">
+                                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                             </div>
                             <div class="flex gap-2">
-                                <select id="filterEstado" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                <select id="filterEstadoDocente" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                                     <option value="">Todos los estados</option>
                                     <option value="1">Activo</option>
                                     <option value="0">Inactivo</option>
                                 </select>
-                            </div>
-                                <button onclick="cargarDocentes()"
-                                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
+                                <div class="flex gap-2">
+                                    <input type="date"
+                                           id="fechaInicioDocente"
+                                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                    <input type="date"
+                                           id="fechaFinDocente"
+                                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -832,52 +852,115 @@ async function cargarAlumnos() {
         });
     }
 }
+function validarFormularioAlumno(form) {
+    const codigo = form.querySelector('[name="codigo"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const celular = form.querySelector('[name="celular"]').value.trim();
+    const username = form.querySelector('[name="username"]').value.trim();
+    const password = form.querySelector('[name="password"]').value;
 
+    if (!codigo) {
+        throw new Error('El código es obligatorio');
+    }
+    if (!/^\d{10}$/.test(codigo)) {
+        throw new Error('El código debe tener exactamente 10 dígitos numéricos');
+    }
+    if (!/^\S+@\S+$/.test(email)) {
+        throw new Error('El email no es válido');
+    }
+    if (!/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/.test(email)) {
+        throw new Error('Debe usar su correo institucional (@ucvvirtual.edu.pe)');
+    }
+    if (celular && !/^9\d{8}$/.test(celular)) {
+        throw new Error('El número de celular debe empezar con 9 y tener 9 dígitos');
+    }
+    if (!username) {
+        throw new Error('El nombre de usuario es obligatorio');
+    }
+    if (username.length < 4) {
+        throw new Error('El nombre de usuario debe tener al menos 4 caracteres');
+    }
+    // Validar contraseña
+    if (!password) {
+        throw new Error('La contraseña es obligatoria');
+    }
+    if (password.length < 6) {
+        throw new Error('La contraseña debe tener al menos 6 caracteres');
+    }
+}
 // Función para mostrar el modal de crear alumno
 function mostrarModalCrearAlumno() {
-    editandoId = null;
-    const form = document.getElementById('form-alumno');
-    form.reset();
-
-    document.getElementById('password-field').style.display = 'block';
-    document.getElementById('modal-titulo').textContent = 'Nuevo Alumno';
-    document.getElementById('modal-alumno').classList.remove('hidden');
+    // Asegurarse de que el modal existe
+    const modal = document.getElementById('modal-alumno');
+    if (!modal) {
+        console.error('No se encontró el modal de alumno');
+        return;
+    }
+    modal.classList.remove('hidden');
 }
 
 // Función para cerrar el modal
 function cerrarModalAlumno() {
-    const modal = document.getElementById('modal-alumno');
-    const form = document.getElementById('form-alumno');
+    const modalAlumno = document.getElementById('modal-alumno');
+    const formAlumno = document.getElementById('form-alumno');
 
-    form.reset();
-    delete form.dataset.editId;
-    modal.classList.add('hidden');
+    if (modalAlumno) {
+        const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+
+        if (Object.keys(formData).length > 0) {
+            Swal.fire({
+                title: '¿Está seguro de cerrar?',
+                text: "Se perderán los datos ingresados",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, cerrar',
+                cancelButtonText: 'Continuar editando',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('formAlumnoTemp');
+                    if (formAlumno) formAlumno.reset();
+                    modalAlumno.classList.add('hidden');
+                }
+            });
+        } else {
+            modalAlumno.classList.add('hidden');
+        }
+    }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const modalAlumno = document.getElementById('modal-alumno');
+    if (modalAlumno) {
+        // Prevenir cierre al hacer click dentro del contenido del modal
+        const modalContent = modalAlumno.querySelector('.relative');
+        if (modalContent) {
+            modalContent.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        modalAlumno.removeEventListener('click', cerrarModalAlumno);
+    }
+});
 
-// Función para guardar alumno
+    // Opcional: Agregar clase para animación de fade
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+
+
+
+// ///////////////////////////////////////////////Función para guardar alumno////////////////////////////////////////////////////////////
 async function guardarAlumno(event) {
     event.preventDefault();
 
     try {
-        const form = document.getElementById('form-alumno');
-        const editId = form.dataset.editId;
+        const form = event.target;
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const editId = form.dataset.editId;
 
-        const url = editId
-            ? `/drive_ucv/alumnos/editar/${editId}`
-            : '/drive_ucv/alumnos/crear';
-
-        const response = await fetch(url, {
-            method: editId ? 'PUT' : 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
+        // ... resto del código de guardado ...
 
         if (result.success) {
             await Swal.fire({
@@ -888,7 +971,10 @@ async function guardarAlumno(event) {
                 showConfirmButton: false
             });
 
-            cerrarModalAlumno();
+            // Limpiar datos y cerrar directamente sin confirmación
+            localStorage.removeItem('formAlumnoTemp');
+            form.reset();
+            document.getElementById('modal-alumno').classList.add('hidden');
             activarSeccion('alumnos');
         } else {
             throw new Error(result.message);
@@ -1583,7 +1669,10 @@ async function guardarAlumno(event) {
                 showConfirmButton: false
             });
 
-            cerrarModalAlumno();
+            // Limpiar datos y cerrar directamente sin confirmación
+            localStorage.removeItem('formAlumnoTemp');
+            form.reset();
+            document.getElementById('modal-alumno').classList.add('hidden');
             activarSeccion('alumnos');
         } else {
             throw new Error(result.message);
@@ -1611,14 +1700,53 @@ function cerrarModalDocente() {
     modal.classList.add('hidden');
 }
 
-function cerrarModalAlumno() {
-    const modal = document.getElementById('modal-alumno');
-    const form = document.getElementById('form-alumno');
-
-    form.reset();
-    delete form.dataset.editId;
-    modal.classList.add('hidden');
+function guardarDatosTemporales(event) {
+    const input = event.target;
+    const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+    formData[input.name] = input.value;
+    localStorage.setItem('formAlumnoTemp', JSON.stringify(formData));
+    console.log('Datos guardados:', formData);
 }
+
+function cerrarModalAlumno() {
+    const modalAlumno = document.getElementById('modal-alumno');
+    const formAlumno = document.getElementById('form-alumno');
+
+    if (modalAlumno) {
+        const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+
+        if (Object.keys(formData).length > 0) {
+            Swal.fire({
+                title: '¿Está seguro de cerrar?',
+                text: "Se perderán los datos ingresados",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, cerrar',
+                cancelButtonText: 'Continuar editando',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('formAlumnoTemp');
+                    if (formAlumno) formAlumno.reset();
+                    modalAlumno.classList.add('hidden');
+                }
+            });
+        } else {
+            modalAlumno.classList.add('hidden');
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const formAlumno = document.getElementById('form-alumno');
+    if (formAlumno) {
+        const inputs = formAlumno.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', guardarDatosTemporales);
+        });
+    }
+});
 
 function mostrarModalCrearDocente() {
     const modal = document.getElementById('modal-docente');
@@ -1643,7 +1771,6 @@ function mostrarModalCrearDocente() {
     // Mostrar el modal
     modal.classList.remove('hidden');
 }
-
 // Agregar event listeners para cerrar el modal con Escape o clicking fuera
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('modal-docente');
@@ -1662,6 +1789,282 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+//////////////////////////////////////////////////////////////////filtros////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////777 Función para filtrar alumnos////////////////////////////////////////////////////////////
+async function filtrarAlumnos() {
+    const busqueda = document.getElementById('searchAlumno').value;
+    const ciclo = document.getElementById('filterCiclo').value;
+    const estado = document.getElementById('filterEstadoAlumno').value;
+    const fechaInicio = document.getElementById('fechaInicioAlumno').value;
+    const fechaFin = document.getElementById('fechaFinAlumno').value;
+
+    try {
+        const response = await fetch('/drive_ucv/alumnos/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                busqueda,
+                ciclo,
+                estado,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            actualizarTablaAlumnos(result.data);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al filtrar alumnos'
+        });
+    }
+    /////////////////////////////////////////777actualizar tabla alumnos////////////////////////////////////////////////////////////
+    function actualizarTablaAlumnos(alumnos) {
+    const tablaAlumnos = document.getElementById('tabla-alumnos');
+    tablaAlumnos.innerHTML = '';
+
+    alumnos.forEach(alumno => {
+        const estadoActual = alumno.status == 1 || alumno.status === '1';
+        const fechaActualizacion = alumno.fecha_actualizacion
+            ? new Date(alumno.fecha_actualizacion).toLocaleString()
+            : 'No actualizado';
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-user-id', alumno.id_usuario);
+
+        row.innerHTML = `
+            <td class="px-6 py-4">${alumno.nombres}</td>
+            <td class="px-6 py-4">${alumno.apellidos}</td>
+            <td class="px-6 py-4">${alumno.codigo_alumno}</td>
+            <td class="px-6 py-4">${alumno.ciclo}</td>
+            <td class="px-6 py-4">${alumno.email}</td>
+            <td class="px-6 py-4">${alumno.celular || '-'}</td>
+            <td class="px-6 py-4">${alumno.username}</td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               class="sr-only peer"
+                               ${estadoActual ? 'checked' : ''}
+                               onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                                    peer-focus:ring-blue-300 rounded-full peer
+                                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                    after:bg-white after:border-gray-300 after:border after:rounded-full
+                                    after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                        </div>
+                        <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
+                            ${estadoActual ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </label>
+                </div>
+            </td>
+            <td class="px-6 py-4">${fechaActualizacion}</td>
+            <td class="px-6 py-4 text-center">
+                <button onclick="editarAlumno(${alumno.id_usuario})"
+                        class="text-blue-600 hover:text-blue-900">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        `;
+
+        tablaAlumnos.appendChild(row);
+    });
+}
+}
+
+///////////////////////////////////////777 Función para filtrar docentes///////////////////////////////////77
+async function filtrarDocentes() {
+    const busqueda = document.getElementById('searchDocente').value;
+    const estado = document.getElementById('filterEstadoDocente').value;
+    const fechaInicio = document.getElementById('fechaInicioDocente').value;
+    const fechaFin = document.getElementById('fechaFinDocente').value;
+
+    try {
+        const response = await fetch('/drive_ucv/docentes/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                busqueda,
+                estado,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            actualizarTablaDocentes(result.data);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al filtrar docentes'
+        });
+    }
+    /////////////////////////////////////////7////actualizar tabla docentes////////////////////////////////////////////////////////////
+    function actualizarTablaDocentes(docentes) {
+    const tablaDocentes = document.getElementById('tabla-docentes');
+    tablaDocentes.innerHTML = '';
+
+    docentes.forEach(docente => {
+        const estadoActual = docente.status == 1 || docente.status === '1';
+        const fechaActualizacion = docente.fecha_actualizacion
+            ? new Date(docente.fecha_actualizacion).toLocaleString()
+            : 'No actualizado';
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-user-id', docente.id_usuario);
+
+        row.innerHTML = `
+            <td class="px-6 py-4">${docente.nombres}</td>
+            <td class="px-6 py-4">${docente.apellidos}</td>
+            <td class="px-6 py-4">${docente.codigo}</td>
+            <td class="px-6 py-4">${docente.email}</td>
+            <td class="px-6 py-4">${docente.celular || '-'}</td>
+            <td class="px-6 py-4">${docente.username}</td>
+            <td class="px-6 py-4">${docente.secciones_asignadas || 'Sin asignaciones'}</td>
+            <td class="px-6 py-4">
+                <div class="flex items-center justify-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               class="sr-only peer"
+                               ${estadoActual ? 'checked' : ''}
+                               onchange="cambiarEstado('docentes', ${docente.id_usuario}, this.checked)">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                                    peer-focus:ring-blue-300 rounded-full peer
+                                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                    after:bg-white after:border-gray-300 after:border after:rounded-full
+                                    after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                        </div>
+                        <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
+                            ${estadoActual ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </label>
+                </div>
+            </td>
+            <td class="px-6 py-4">${fechaActualizacion}</td>
+            <td class="px-6 py-4 text-center">
+                <button onclick="editarDocente(${docente.id_usuario})"
+                        class="text-blue-600 hover:text-blue-900">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        `;
+
+        tablaDocentes.appendChild(row);
+    });
+}
+}
+
+// Agregar event listeners para los filtros
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners para filtros de alumnos
+    ['searchAlumno', 'filterCiclo', 'filterEstadoAlumno', 'fechaInicioAlumno', 'fechaFinAlumno'].forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.addEventListener('change', filtrarAlumnos);
+            if (id === 'searchAlumno') {
+                elemento.addEventListener('keyup', filtrarAlumnos);
+            }
+        }
+    });
+
+    // Event listeners para filtros de docentes
+    ['searchDocente', 'filterEstadoDocente', 'fechaInicioDocente', 'fechaFinDocente'].forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.addEventListener('change', filtrarDocentes);
+            if (id === 'searchDocente') {
+                elemento.addEventListener('keyup', filtrarDocentes);
+            }
+        }
+    });
+});
+
+///////////////////////////////////////////////777 Función para validar si el usuario es disponible////////////////////////////////////////////////////////////
+let timeoutId = null;
+async function validarUsuarioDisponible(username) {
+    const messageSpan = document.getElementById('username-message');
+
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+
+    if (!username) {
+        messageSpan.textContent = '';
+        messageSpan.className = 'text-xs';
+        return;
+    }
+
+    timeoutId = setTimeout(async () => {
+        try {
+            const response = await fetch('/drive_ucv/verificar-usuario', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ username })
+            });
+
+            const result = await response.json();
+
+            if (result.disponible) {
+                messageSpan.textContent = '✓ Usuario disponible';
+                messageSpan.className = 'text-xs text-green-600';
+            } else {
+                messageSpan.textContent = '✗ Este usuario ya está registrado';
+                messageSpan.className = 'text-xs text-red-600';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }, 500);
+}
+
+// Validación en tiempo real para el email
+function validarEmailInstitucional(input) {
+    const messageSpan = input.nextElementSibling;
+    const email = input.value.trim();
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/;
+
+    if (!email) {
+        messageSpan.textContent = '';
+        messageSpan.className = 'text-xs';
+        return;
+    }
+
+    if (!emailRegex.test(email)) {
+        messageSpan.textContent = '✗ Debe usar su correo institucional (@ucvvirtual.edu.pe)';
+        messageSpan.className = 'text-xs text-red-600';
+    } else {
+        messageSpan.textContent = '✓ Formato de correo válido';
+        messageSpan.className = 'text-xs text-green-600';
+    }
+}
 </script>
 @endsection
 

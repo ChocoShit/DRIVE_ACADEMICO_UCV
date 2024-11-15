@@ -27,12 +27,14 @@ Route::post('/logout',[AuthController::class,'postLogout'])->name('login.logout'
 //Route::get('/alumnos/listar', [AlumnoController::class, 'listarAlumnos'])->name('alumnos.listar');
 
 Route::middleware(['auth'])->group(function () {
-    
+
     Route::prefix('alumnos')->group(function () {
         Route::get('/listar', [AlumnoController::class, 'listarAlumnos'])->name('alumnos.listar');
         Route::post('/crear', [AlumnoController::class, 'crearAlumno'])->name('alumnos.crear');
         Route::put('/actualizar/{id}', [AlumnoController::class, 'actualizarAlumno'])->name('alumnos.actualizar');
         Route::put('/estado/{id}', [AlumnoController::class, 'cambiarEstado'])->name('alumnos.estado');
+        Route::post('/filtrar', [AlumnoController::class, 'filtrar'])->name('alumnos.filtrar');
+        Route::post('/verificar-usuario', [AlumnoController::class, 'verificarUsuario'])->name('alumnos.verificar-usuario');
         //Route::get('/obtener/{id}', [AlumnoController::class, 'obtenerAlumno'])->name('alumnos.obtener');
         Route::put('/editar/{id}', [AlumnoController::class, 'editarAlumno'])->name('alumnos.editar');
     });
@@ -43,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/estado/{id}', [DocenteController::class, 'cambiarEstado']);
         Route::put('/editar/{id}', [DocenteController::class, 'editarDocente']);
         Route::post('/crear', [DocenteController::class, 'crearDocente']);
+        Route::post('/filtrar', [DocenteController::class, 'filtrar'])->name('docentes.filtrar');
     });
 
     Route::prefix('cursos')->group(function () {

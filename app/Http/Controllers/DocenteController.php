@@ -172,4 +172,31 @@ class DocenteController extends Controller
             ], 500);
         }
     }
+    public function filtrar(Request $request)
+{
+    try {
+        $busqueda = $request->busqueda ?? null;
+        $estado = $request->estado ?? null;
+        $fechaInicio = $request->fecha_inicio ? date('Y-m-d', strtotime($request->fecha_inicio)) : null;
+        $fechaFin = $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : null;
+
+        // Llamada al procedimiento almacenado
+        $docentes = DB::select('CALL sp_filtrar_docentes(?, ?, ?, ?)', [
+            $busqueda,
+            $estado,
+            $fechaInicio,
+            $fechaFin
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $docentes
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al filtrar docentes: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
