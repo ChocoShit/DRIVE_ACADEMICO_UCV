@@ -564,7 +564,6 @@ DRIVE UCV
                     <input type="text" name="apellidos" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
-
                 <!-- Edad -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Código</label>
@@ -987,24 +986,34 @@ async function guardarAlumno(event) {
         const formData = new FormData(form);
         const editId = form.dataset.editId;
 
-        // URL según si es edición o creación
-        const url = editId
-            ? `/drive_ucv/alumnos/editar/${editId}`
-            : '/drive_ucv/alumnos/crear';
+        // Validación del email primero
+        const email = formData.get('email');
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/;
 
-        // Convertir FormData a objeto
-        const data = {};
-        formData.forEach((value, key) => {
-            if (key === 'codigo') {
-                data[key] = value.toString().padStart(10, '0');
-            } else if (key === 'celular') {
-                data[key] = value ? value.toString().padStart(9, '0') : null;
-            } else {
-                data[key] = value;
-            }
-        });
+        // Validación del correo antes de cualquier petición
+        if (!email.match(emailPattern)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Correo inválido',
+                text: 'El correo debe ser institucional (@ucvvirtual.edu.pe)',
+                confirmButtonText: 'Entendido'
+            });
+            return false; // Detener la ejecución si el email no es válido
+            return;
+        }
 
-        const response = await fetch(url, {
+        // Preparar datos asegurando el formato correcto
+        const data = {
+            nombres: formData.get('nombres'),
+            apellidos: formData.get('apellidos'),
+            codigo: formData.get('codigo').toString().padStart(10, '0'),
+            email: email,
+            celular: formData.get('celular') ? formData.get('celular').toString().padStart(9, '0') : null,
+            username: formData.get('username'),
+            ciclo: formData.get('ciclo').substring(0, 2)
+        };
+
+        const response = await fetch(editId ? `/drive_ucv/alumnos/editar/${editId}` : '/drive_ucv/alumnos/crear', {
             method: editId ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1018,19 +1027,18 @@ async function guardarAlumno(event) {
 
         if (!response.ok) {
             if (response.status === 422) {
-                // Manejar errores de validación
                 const errores = result.errors || {};
-                const mensajeError = Object.values(errores).flat()[0] || 'Error de validación';
+                const mensajesError = Object.values(errores).flat();
 
                 await Swal.fire({
                     icon: 'error',
                     title: 'Error de validación',
-                    text: mensajeError,
+                    html: mensajesError.join('<br>'),
                     confirmButtonText: 'Entendido'
                 });
                 return;
             }
-            throw new Error(result.message || 'Error al procesar la solicitud');
+            throw new Error(result.message || `Error al ${editId ? 'actualizar' : 'crear'} el alumno: ${result.error || ''}`);
         }
 
         if (result.success) {
@@ -1042,22 +1050,21 @@ async function guardarAlumno(event) {
                 showConfirmButton: false
             });
 
-            // Limpiar y cerrar
             localStorage.removeItem('formAlumnoTemp');
             form.reset();
             document.getElementById('modal-alumno').classList.add('hidden');
-
-            // Recargar la tabla
             await cargarAlumnos();
         } else {
             throw new Error(result.message || 'Error al procesar la solicitud');
         }
     } catch (error) {
         console.error('Error:', error);
+
         await Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message || 'Error al guardar el alumno'
+            text: error.message || 'Error al procesar la solicitud',
+            confirmButtonText: 'Entendido'
         });
     }
 }
@@ -2214,3 +2221,4 @@ function validarEmailInstitucional(input) {
     }
 </style>
 @endsection
+
