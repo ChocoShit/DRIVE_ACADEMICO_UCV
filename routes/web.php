@@ -31,11 +31,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('alumnos')->group(function () {
         Route::get('/listar', [AlumnoController::class, 'listarAlumnos'])->name('alumnos.listar');
         Route::post('/crear', [AlumnoController::class, 'crearAlumno'])->name('alumnos.crear');
-        Route::put('/actualizar/{id}', [AlumnoController::class, 'actualizarAlumno'])->name('alumnos.actualizar');
+       // Route::put('/actualizar/{id}', [AlumnoController::class, 'actualizarAlumno'])->name('alumnos.actualizar');
         Route::put('/estado/{id}', [AlumnoController::class, 'cambiarEstado'])->name('alumnos.estado');
         Route::post('/filtrar', [AlumnoController::class, 'filtrar'])->name('alumnos.filtrar');
         Route::post('/verificar-usuario', [AlumnoController::class, 'verificarUsuario'])->name('alumnos.verificar-usuario');
-        //Route::get('/obtener/{id}', [AlumnoController::class, 'obtenerAlumno'])->name('alumnos.obtener');
+        Route::get('/obtener/{id}', [AlumnoController::class, 'obtenerAlumno'])->name('alumnos.obtener');
         Route::put('/editar/{id}', [AlumnoController::class, 'editarAlumno'])->name('alumnos.editar');
     });
 

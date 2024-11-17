@@ -105,12 +105,7 @@ DRIVE UCV
                         <!-- Opciones de Configuración -->
                         <div class="px-4 py-2 border-t">
                             <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Configuración</p>
-                            <a href="#"
-                                class="block py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 rounded-md px-2"
-                                role="menuitem"
-                                onclick="cambiarTema()">
-                                <i class="fas fa-palette mr-2"></i> Tema de la interfaz
-                            </a>
+
                             <a href="#"
                                 class="block py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 rounded-md px-2"
                                 role="menuitem"
@@ -219,8 +214,9 @@ DRIVE UCV
                 </div>
 
                 <!-- Modal para Crear/Editar Alumno -->
-                <div id="modal-alumno" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+                <div id="modal-alumno" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
                     <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+                        <!-- Asegúrate de que este ID existe -->
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium" id="modal-titulo">Nuevo Alumno</h3>
                             <button type="button" onclick="cerrarModalAlumno()" class="text-gray-400 hover:text-gray-500">
@@ -261,7 +257,11 @@ DRIVE UCV
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Email Institucional</label>
-                                    <input type="email" name="email" required pattern="[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    <input type="email"
+                                           name="email"
+                                           required
+                                           pattern="[a-zA-Z0-9._+-]+@ucvvirtual\.edu\.pe"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                            placeholder="ejemplo@ucvvirtual.edu.pe"
                                            title="Por favor ingrese un correo institucional válido (@ucvvirtual.edu.pe)">
                                     <span class="text-xs text-gray-500">Use su correo institucional (@ucvvirtual.edu.pe)</span>
@@ -280,11 +280,9 @@ DRIVE UCV
                                            placeholder="Ingrese nombre de usuario">
                                     <span id="username-message" class="text-xs"></span>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                                    <input type="password" name="password" required minlength="6" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                           placeholder="Ingrese contraseña">
-                                    <span class="text-xs text-gray-500">La contraseña debe tener al menos 6 caracteres</span>
+                                <div class="form-group" id="password-container">
+                                    <label for="password">Contraseña</label>
+                                    <input type="password" name="password" id="password-alumno" required>
                                 </div>
                             </div>
                             <div class="mt-4 flex justify-end">
@@ -602,7 +600,7 @@ DRIVE UCV
                     </label>
                     <input type="password"
                            name="password"
-                           id="password"
+                           id="password-docente"
                            minlength="6"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
@@ -780,68 +778,76 @@ document.addEventListener('DOMContentLoaded', function() {
 // Función para cargar la lista de alumnos
 async function cargarAlumnos() {
     try {
-        const response = await fetch('/drive_ucv/alumnos/listar');
+        const response = await fetch('/drive_ucv/alumnos/listar', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
         const result = await response.json();
 
         if (result.success) {
             const tablaAlumnos = document.getElementById('tabla-alumnos');
+            if (!tablaAlumnos) {
+                throw new Error('No se encontró la tabla de alumnos');
+            }
+
             tablaAlumnos.innerHTML = '';
 
             result.data.forEach(alumno => {
-                // Modificar cómo verificamos el estado
                 const estadoActual = alumno.status == 1 || alumno.status === '1';
-                console.log('Estado del alumno:', {
-                    id: alumno.id_usuario,
-                    status: alumno.status,
-                    estadoActual: estadoActual
-                });
-
                 const fechaActualizacion = alumno.fecha_actualizacion
                     ? new Date(alumno.fecha_actualizacion).toLocaleString()
                     : 'No actualizado';
 
-                const row = document.createElement('tr');
-                row.setAttribute('data-user-id', alumno.id_usuario);
-
-                row.innerHTML = `
-                    <td class="px-6 py-4">${alumno.nombres}</td>
-                    <td class="px-6 py-4">${alumno.apellidos}</td>
-                    <td class="px-6 py-4">${alumno.codigo}</td>
-                    <td class="px-6 py-4">${alumno.ciclo}</td>
-                    <td class="px-6 py-4">${alumno.email}</td>
-                    <td class="px-6 py-4">${alumno.celular || '-'}</td>
-                    <td class="px-6 py-4">${alumno.username}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox"
-                                       class="sr-only peer"
-                                       ${estadoActual ? 'checked' : ''}
-                                       onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                            peer-focus:ring-blue-300 rounded-full peer
-                                            peer-checked:after:translate-x-full peer-checked:after:border-white
-                                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                            after:bg-white after:border-gray-300 after:border after:rounded-full
-                                            after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                                <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
-                                    ${estadoActual ? 'Activo' : 'Inactivo'}
-                                </span>
-                            </label>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">${fechaActualizacion}</td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="editarAlumno(${alumno.id_usuario})"
-                                class="text-blue-600 hover:text-blue-900">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </td>
+                tablaAlumnos.innerHTML += `
+                    <tr data-user-id="${alumno.id_usuario}">
+                        <td class="px-6 py-4">${alumno.nombres}</td>
+                        <td class="px-6 py-4">${alumno.apellidos}</td>
+                        <td class="px-6 py-4">${alumno.codigo}</td>
+                        <td class="px-6 py-4">${alumno.ciclo}</td>
+                        <td class="px-6 py-4">${alumno.email}</td>
+                        <td class="px-6 py-4">${alumno.celular || '-'}</td>
+                        <td class="px-6 py-4">${alumno.username}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox"
+                                           class="sr-only peer"
+                                           ${estadoActual ? 'checked' : ''}
+                                           onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
+                                                peer-focus:ring-blue-300 rounded-full peer
+                                                peer-checked:after:translate-x-full peer-checked:after:border-white
+                                                after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                                after:bg-white after:border-gray-300 after:border after:rounded-full
+                                                after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
+                                        ${estadoActual ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">${fechaActualizacion}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="editarAlumno(${alumno.id_usuario})"
+                                    class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
                 `;
-
-                tablaAlumnos.appendChild(row);
             });
+        } else {
+            throw new Error(result.message || 'No se pudieron cargar los alumnos');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -890,13 +896,29 @@ function validarFormularioAlumno(form) {
 }
 // Función para mostrar el modal de crear alumno
 function mostrarModalCrearAlumno() {
-    // Asegurarse de que el modal existe
-    const modal = document.getElementById('modal-alumno');
-    if (!modal) {
-        console.error('No se encontró el modal de alumno');
-        return;
+    const form = document.getElementById('form-alumno');
+    const modalTitulo = document.getElementById('modal-titulo');
+
+    // Resetear el formulario
+    form.reset();
+    delete form.dataset.editId;
+
+    // Mostrar y habilitar el campo de contraseña para crear
+    const passwordField = form.querySelector('[name="password"]');
+    const passwordContainer = passwordField?.closest('.form-group') || form.querySelector('#password-container');
+    if (passwordContainer) {
+        passwordContainer.style.display = 'block';
+        if (passwordField) {
+            passwordField.required = true;
+            passwordField.disabled = false;
+        }
     }
-    modal.classList.remove('hidden');
+
+    // Cambiar título
+    modalTitulo.textContent = 'Nuevo Alumno';
+
+    // Mostrar modal
+    document.getElementById('modal-alumno').classList.remove('hidden');
 }
 
 // Función para cerrar el modal
@@ -945,9 +967,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
     // Opcional: Agregar clase para animación de fade
-    setTimeout(() => {
+setTimeout(() => {
+    const modal = document.getElementById('modal-alumno'); // o el ID que corresponda
+    if (modal) {
         modal.classList.add('show');
-    }, 10);
+    }
+}, 10);
 
 
 
@@ -960,7 +985,51 @@ async function guardarAlumno(event) {
         const formData = new FormData(form);
         const editId = form.dataset.editId;
 
-        // ... resto del código de guardado ...
+        // URL según si es edición o creación
+        const url = editId
+            ? `/drive_ucv/alumnos/editar/${editId}`
+            : '/drive_ucv/alumnos/crear';
+
+        // Convertir FormData a objeto
+        const data = {};
+        formData.forEach((value, key) => {
+            if (key === 'codigo') {
+                data[key] = value.toString().padStart(10, '0');
+            } else if (key === 'celular') {
+                data[key] = value ? value.toString().padStart(9, '0') : null;
+            } else {
+                data[key] = value;
+            }
+        });
+
+        const response = await fetch(url, {
+            method: editId ? 'PUT' : 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 422) {
+                // Manejar errores de validación
+                const errores = result.errors || {};
+                const mensajeError = Object.values(errores).flat()[0] || 'Error de validación';
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    text: mensajeError,
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+            throw new Error(result.message || 'Error al procesar la solicitud');
+        }
 
         if (result.success) {
             await Swal.fire({
@@ -971,20 +1040,22 @@ async function guardarAlumno(event) {
                 showConfirmButton: false
             });
 
-            // Limpiar datos y cerrar directamente sin confirmación
+            // Limpiar y cerrar
             localStorage.removeItem('formAlumnoTemp');
             form.reset();
             document.getElementById('modal-alumno').classList.add('hidden');
-            activarSeccion('alumnos');
+
+            // Recargar la tabla
+            await cargarAlumnos();
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || 'Error al procesar la solicitud');
         }
     } catch (error) {
         console.error('Error:', error);
-        Swal.fire({
+        await Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message
+            text: error.message || 'Error al guardar el alumno'
         });
     }
 }
@@ -1059,15 +1130,38 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
 async function editarAlumno(id) {
     try {
         console.log('Editando alumno:', id);
-        const response = await fetch(`/drive_ucv/alumnos/${id}`);
+        const response = await fetch(`/drive_ucv/alumnos/obtener/${id}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
         const result = await response.json();
 
         if (result.success) {
             const alumno = result.data;
             const form = document.getElementById('form-alumno');
+            const modalTitulo = document.getElementById('modal-titulo');
+
+            // Ocultar y deshabilitar el campo de contraseña
+            const passwordField = form.querySelector('[name="password"]');
+            const passwordContainer = passwordField?.closest('.form-group') || form.querySelector('#password-container');
+            if (passwordContainer) {
+                passwordContainer.style.display = 'none';
+                if (passwordField) {
+                    passwordField.removeAttribute('required');
+                    passwordField.disabled = true;
+                }
+            }
 
             // Llenar el formulario con los datos existentes
-
             form.querySelector('[name="nombres"]').value = alumno.nombres;
             form.querySelector('[name="apellidos"]').value = alumno.apellidos;
             form.querySelector('[name="codigo"]').value = alumno.codigo;
@@ -1076,18 +1170,14 @@ async function editarAlumno(id) {
             form.querySelector('[name="username"]').value = alumno.username;
             form.querySelector('[name="ciclo"]').value = alumno.ciclo;
 
-            // Ocultar campo de contraseña si existe
-            const passwordField = form.querySelector('[name="password"]');
-            if (passwordField) {
-                passwordField.closest('div').style.display = 'none';
-            }
-
             // Cambiar título y guardar ID para la edición
-            document.getElementById('modal-alumno-titulo').textContent = 'Editar Alumno';
+            modalTitulo.textContent = 'Editar Alumno';
             form.dataset.editId = id;
 
             // Mostrar modal
             document.getElementById('modal-alumno').classList.remove('hidden');
+        } else {
+            throw new Error(result.message || 'No se pudo cargar la información del alumno');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -1627,6 +1717,18 @@ async function guardarAlumno(event) {
     try {
         const form = event.target;
         const formData = new FormData(form);
+
+        // Validar contraseña
+        const password = formData.get('password');
+        if (password && password.length < 6) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La contraseña debe tener al menos 6 caracteres'
+            });
+            return;
+        }
+
         const editId = form.dataset.editId;
 
         const data = {
@@ -1682,7 +1784,7 @@ async function guardarAlumno(event) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message
+            text: error.message || 'Error al guardar el alumno'
         });
     }
 }
@@ -2009,40 +2111,47 @@ let timeoutId = null;
 async function validarUsuarioDisponible(username) {
     const messageSpan = document.getElementById('username-message');
 
+    // Limpiar timeout previo
     if (timeoutId) {
         clearTimeout(timeoutId);
     }
 
+    // Validar campo vacío
     if (!username) {
         messageSpan.textContent = '';
         messageSpan.className = 'text-xs';
         return;
     }
 
-    timeoutId = setTimeout(async () => {
-        try {
-            const response = await fetch('/drive_ucv/verificar-usuario', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ username })
-            });
+    try {
+        const response = await fetch('/drive_ucv/verificar-usuario', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',  // Agregar este header
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ username })
+        });
 
-            const result = await response.json();
-
-            if (result.disponible) {
-                messageSpan.textContent = '✓ Usuario disponible';
-                messageSpan.className = 'text-xs text-green-600';
-            } else {
-                messageSpan.textContent = '✗ Este usuario ya está registrado';
-                messageSpan.className = 'text-xs text-red-600';
-            }
-        } catch (error) {
-            console.error('Error:', error);
+        if (!response.ok) {
+            throw new Error('Error en la petición');
         }
-    }, 500);
+
+        const result = await response.json();
+
+        if (result.disponible) {
+            messageSpan.textContent = 'Usuario disponible';
+            messageSpan.className = 'text-xs text-green-600';
+        } else {
+            messageSpan.textContent = 'Usuario no disponible';
+            messageSpan.className = 'text-xs text-red-600';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        messageSpan.textContent = 'Error al verificar usuario';
+        messageSpan.className = 'text-xs text-red-600';
+    }
 }
 
 // Validación en tiempo real para el email

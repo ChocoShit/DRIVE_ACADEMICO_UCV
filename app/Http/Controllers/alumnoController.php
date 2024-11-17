@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+
 class AlumnoController extends Controller
 {
     public function listarAlumnos()
@@ -155,46 +157,6 @@ class AlumnoController extends Controller
             ], 500);
         }
     }
-    public function actualizarAlumno(Request $request, $id)
-    {
-        try {
-            $request->validate([
-                'nombres' => 'required|string|max:100',
-                'apellidos' => 'required|string|max:100',
-                'codigo' => 'required|integer|min:18|max:100',
-                'email' => 'required|email|unique:datos_persona,email,'.$id.',id_usuario',
-                'celular' => 'nullable|string|max:15',
-                'username' => 'required|string|unique:usuario,username,'.$id.',id_usuario',
-                'ciclo' => 'required|string|max:2'
-            ]);
-
-            $result = DB::select('CALL sp_editar_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
-                $id,
-                $request->nombres,
-                $request->apellidos,
-                $request->codigo,
-                $request->email,
-                $request->celular,
-                $request->ciclo,
-                $request->username
-            ]);
-            if (empty($result)) {
-                throw new \Exception('No se pudo actualizar el alumno');
-            }
-            return response()->json([
-                'success' => true,
-                'message' => 'Alumno actualizado exitosamente',
-                'fecha_actualizacion' => $result[0]->fecha_actualizacion ?? null
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error al actualizar alumno: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el alumno: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function cambiarEstado(Request $request, $id)
     {
@@ -232,29 +194,23 @@ class AlumnoController extends Controller
         }
     }
 
-    /* public function obtenerAlumno($id)
+     public function obtenerAlumno($id)
     {
         try {
             Log::info('Obteniendo información del alumno', ['id' => $id]);
 
-            $alumno = DB::table('usuario as u')
-                ->join('datos_persona as dp', 'u.id_usuario', '=', 'dp.id_usuario')
-                ->select(
-                    'u.id_usuario',
-                    'dp.nombres',
-                    'dp.apellidos',
-                    'dp.edad',
-                    'dp.ciclo',
-                    'dp.email',
-                    'dp.celular',
-                    'u.username',
-                    'u.status',
-                    DB::raw("DATE_FORMAT(u.created_at, '%d/%m/%Y') as fecha_registro")
-                )
-                ->where('u.id_usuario', $id)
-                ->first();
+            $procedureExists = DB::select("SHOW PROCEDURE STATUS WHERE Db = ? AND Name = ?", [
+                env('DB_DATABASE'), 'sp_obtener_alumno'
+            ]);
 
-            if (!$alumno) {
+            if (empty($procedureExists)) {
+                throw new \Exception('El procedimiento almacenado sp_obtener_alumno no existe');
+            }
+
+            // Llamar al procedimiento almacenado
+            $alumno = DB::select('CALL sp_obtener_alumno(?)', [$id]);
+
+            if (empty($alumno)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Alumno no encontrado'
@@ -263,7 +219,7 @@ class AlumnoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $alumno
+                'data' => $alumno[0] // Tomamos el primer resultado
             ]);
 
         } catch (\Exception $e) {
@@ -273,7 +229,8 @@ class AlumnoController extends Controller
                 'message' => 'Error al obtener la información del alumno: ' . $e->getMessage()
             ], 500);
         }
-    } */
+    }
+
     public function filtrar(Request $request)
 {
     try {
@@ -312,12 +269,30 @@ class AlumnoController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'codigo' => 'required|integer|min:16|max:100',
-                'email' => 'required|email|max:100',
-                'celular' => 'nullable|string|max:15',
+                'codigo' => [
+                    'required',
+                    'string',
+                    'size:10',  // Exactamente 10 caracteres
+                    'regex:/^\d{10}$/' // Solo dígitos
+                ], // Validación específica para código de 10 dígitos
+                'email' => [
+                    'required',
+                    'email',
+                    'max:100',
+                    'regex:/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/' // Solo correos institucionales
+                ],
+                'celular' => [
+                    'nullable',
+                    'regex:/^9\d{8}$/' // Debe empezar con 9 y tener 9 dígitos
+                ],
                 'ciclo' => 'required|string|max:2',
-                'username' => 'required|string|max:50'
-            ]);
+                'username' => 'required|string|min:4|max:50',
+                'codigo.size' => 'El código debe tener exactamente 10 dígitos',
+            'codigo.regex' => 'El código debe contener solo números',
+            'email.regex' => 'Debe usar su correo institucional (@ucvvirtual.edu.pe)',
+            'celular.regex' => 'El número de celular debe empezar con 9 y tener 9 dígitos'
+        ]);
+           
 
             $result = DB::select('CALL sp_editar_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
                 $id,
@@ -330,11 +305,17 @@ class AlumnoController extends Controller
                 $request->username
             ]);
 
+
             return response()->json([
                 'success' => true,
                 'message' => 'Alumno actualizado correctamente'
             ]);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Error al editar alumno: ' . $e->getMessage());
             return response()->json([

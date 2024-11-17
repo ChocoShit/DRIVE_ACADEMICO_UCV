@@ -8,7 +8,7 @@
 
     @vite(['resources/css/app.css'])
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'drive_ucv/alumnos/*'  // Excluir temporalmente para pruebas
     ];
 }
