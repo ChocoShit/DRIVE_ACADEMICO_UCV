@@ -823,14 +823,16 @@ async function cargarAlumnos() {
                                            class="sr-only peer"
                                            ${estadoActual ? 'checked' : ''}
                                            onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                                peer-focus:ring-blue-300 rounded-full peer
-                                                peer-checked:after:translate-x-full peer-checked:after:border-white
-                                                after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                                after:bg-white after:border-gray-300 after:border after:rounded-full
-                                                after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer
+                                            peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
+                                            dark:peer-focus:ring-blue-800 dark:bg-gray-700
+                                            peer-checked:after:translate-x-full peer-checked:after:border-white
+                                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                            after:bg-white after:border-gray-300 after:border after:rounded-full
+                                            after:h-5 after:w-5 after:transition-all dark:border-gray-600
+                                            peer-checked:bg-blue-600">
                                     </div>
-                                    <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
+                                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 status-text">
                                         ${estadoActual ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </label>
@@ -1189,7 +1191,7 @@ async function editarAlumno(id) {
     }
 }
 
-// Agregar esta función al script existente
+/////////////////////////////////////////////////////////filtrar alumnos////////////////////////////////////////////////////////////
 function filtrarAlumnos() {
     const searchInput = document.getElementById('searchInput');
     const searchField = document.getElementById('searchField');
@@ -1207,6 +1209,7 @@ function filtrarAlumnos() {
             const cellIndex = {
                 'nombres': 0,
                 'apellidos': 1,
+                'codigo': 2,  // Agregamos el índice para código
                 'email': 4,
                 'ciclo': 3,
                 'username': 6
@@ -1943,47 +1946,47 @@ async function filtrarAlumnos() {
             ? new Date(alumno.fecha_actualizacion).toLocaleString()
             : 'No actualizado';
 
-        const row = document.createElement('tr');
-        row.setAttribute('data-user-id', alumno.id_usuario);
-
-        row.innerHTML = `
-            <td class="px-6 py-4">${alumno.nombres}</td>
-            <td class="px-6 py-4">${alumno.apellidos}</td>
-            <td class="px-6 py-4">${alumno.codigo_alumno}</td>
-            <td class="px-6 py-4">${alumno.ciclo}</td>
-            <td class="px-6 py-4">${alumno.email}</td>
-            <td class="px-6 py-4">${alumno.celular || '-'}</td>
-            <td class="px-6 py-4">${alumno.username}</td>
-            <td class="px-6 py-4">
-                <div class="flex items-center justify-center">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox"
-                               class="sr-only peer"
-                               ${estadoActual ? 'checked' : ''}
-                               onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                    peer-focus:ring-blue-300 rounded-full peer
-                                    peer-checked:after:translate-x-full peer-checked:after:border-white
-                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                    after:bg-white after:border-gray-300 after:border after:rounded-full
-                                    after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                        </div>
-                        <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
-                            ${estadoActual ? 'Activo' : 'Inactivo'}
-                        </span>
-                    </label>
-                </div>
-            </td>
-            <td class="px-6 py-4">${fechaActualizacion}</td>
-            <td class="px-6 py-4 text-center">
-                <button onclick="editarAlumno(${alumno.id_usuario})"
-                        class="text-blue-600 hover:text-blue-900">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
+        const row = `
+            <tr data-user-id="${alumno.id_usuario}">
+                <td class="px-6 py-4">${alumno.nombres}</td>
+                <td class="px-6 py-4">${alumno.apellidos}</td>
+                <td class="px-6 py-4">${alumno.codigo}</td>
+                <td class="px-6 py-4">${alumno.ciclo}</td>
+                <td class="px-6 py-4">${alumno.email}</td>
+                <td class="px-6 py-4">${alumno.celular || '-'}</td>
+                <td class="px-6 py-4">${alumno.username}</td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center justify-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox"
+                                   class="sr-only peer"
+                                   ${estadoActual ? 'checked' : ''}
+                                   onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer
+                                      peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
+                                      dark:peer-focus:ring-blue-800 dark:bg-gray-700
+                                      peer-checked:after:translate-x-full peer-checked:after:border-white
+                                      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                      after:bg-white after:border-gray-300 after:border after:rounded-full
+                                      after:h-5 after:w-5 after:transition-all dark:border-gray-600
+                                      peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
+                                ${estadoActual ? 'Activo' : 'Inactivo'}
+                            </span>
+                        </label>
+                    </div>
+                </td>
+                <td class="px-6 py-4">${fechaActualizacion}</td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="editarAlumno(${alumno.id_usuario})"
+                            class="text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
         `;
-
-        tablaAlumnos.appendChild(row);
+        tablaAlumnos.insertAdjacentHTML('beforeend', row);
     });
 }
 }

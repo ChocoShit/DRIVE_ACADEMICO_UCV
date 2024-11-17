@@ -232,34 +232,59 @@ class AlumnoController extends Controller
     }
 
     public function filtrar(Request $request)
-{
-    try {
-        $busqueda = $request->busqueda ?? null;
-        $ciclo = $request->ciclo ?? null;
-        $estado = $request->estado ?? null;
-        $fechaInicio = $request->fecha_inicio ? date('Y-m-d', strtotime($request->fecha_inicio)) : null;
-        $fechaFin = $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : null;
+    {
+        try {
+            $busqueda = $request->busqueda ?? null;
+            $ciclo = $request->ciclo ?? null;
+            $estado = $request->estado ?? null;
+            $fechaInicio = $request->fecha_inicio ? date('Y-m-d', strtotime($request->fecha_inicio)) : null;
+            $fechaFin = $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : null;
 
-        // Llamada al procedimiento almacenado
-        $alumnos = DB::select('CALL sp_filtrar_alumnos(?, ?, ?, ?, ?)', [
-            $busqueda,
-            $ciclo,
-            $estado,
-            $fechaInicio,
-            $fechaFin
-        ]);
+            // Log de los parámetros de búsqueda
+            Log::info('Parámetros de filtrado:', [
+                'busqueda' => $busqueda,
+                'ciclo' => $ciclo,
+                'estado' => $estado,
+                'fechaInicio' => $fechaInicio,
+                'fechaFin' => $fechaFin
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'data' => $alumnos
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al filtrar alumnos: ' . $e->getMessage()
-        ], 500);
+            $alumnos = DB::select('CALL sp_filtrar_alumnos(?, ?, ?, ?, ?)', [
+                $busqueda,
+                $ciclo,
+                $estado,
+                $fechaInicio,
+                $fechaFin
+            ]);
+
+            // Log de los resultados antes del mapeo
+            Log::info('Resultados antes del mapeo:', ['alumnos' => $alumnos]);
+
+            $alumnos = array_map(function($alumno) {
+                if (isset($alumno->codigo)) {
+                    $alumno->codigo = str_pad($alumno->codigo, 10, '0', STR_PAD_LEFT);
+                } else {
+                    $alumno->codigo = str_pad('0', 10, '0', STR_PAD_LEFT);
+                }
+                return $alumno;
+            }, $alumnos);
+
+            // Log de los resultados después del mapeo
+            Log::info('Resultados después del mapeo:', ['alumnos' => $alumnos]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $alumnos
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al filtrar alumnos: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al filtrar alumnos: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 ///repetico////
@@ -292,7 +317,7 @@ class AlumnoController extends Controller
             'email.regex' => 'Debe usar su correo institucional (@ucvvirtual.edu.pe)',
             'celular.regex' => 'El número de celular debe empezar con 9 y tener 9 dígitos'
         ]);
-           
+
 
             $result = DB::select('CALL sp_editar_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
                 $id,
