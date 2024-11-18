@@ -57,6 +57,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/listar', [SeccionController::class, 'listarSecciones']);
         Route::post('/crear', [SeccionController::class, 'crearSeccion']);
         Route::put('/estado/{id}', [SeccionController::class, 'cambiarEstado']);
-        Route::get('/docentes', [SeccionController::class, 'listarDocentes']);
+        Route::get('/docentes', [SeccionController::class, 'listarDocentesDisponibles']);
+        Route::post('/filtrar', [SeccionController::class, 'filtrarSecciones']);
+        Route::get('/curso/{id}', [SeccionController::class, 'seccionesPorCurso']);
+        Route::put('/actualizar/{id}', [SeccionController::class, 'actualizarSeccion']);
     });
 });

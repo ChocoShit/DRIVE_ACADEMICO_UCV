@@ -444,7 +444,7 @@ DRIVE UCV
                                         <label class="block text-sm font-medium text-gray-700">Curso</label>
                                         <select name="id_curso" required
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            <!-- Se llenará dinámicamente -->
+                                            <option value="">Seleccione un curso</option>
                                         </select>
                                     </div>
                                     <div>
@@ -756,7 +756,7 @@ $(document).ready(function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo cargar la información del perfil: ' + error.message
+                text: 'No se pudo cargar la informacin del perfil: ' + error.message
             });
         }
     };
@@ -1332,46 +1332,92 @@ document.addEventListener('DOMContentLoaded', function() {
 // Variables globales
 let cursoSeleccionadoId = null;
 
-// Cargar cursos al entrar a la sección
-document.addEventListener('DOMContentLoaded', function() {
-    const seccionesLink = document.querySelector('[data-section="secciones"]');
-    if (seccionesLink) {
-        seccionesLink.addEventListener('click', cargarCursos);
-    }
-});
-
-// Función para cargar los cursos
+// Función única para cargar cursos
 async function cargarCursos() {
     try {
-        const response = await fetch('/drive_ucv/cursos/listar');
+        console.log('Iniciando carga de cursos');
+        const response = await fetch('/drive_ucv/cursos/listar', {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
         const result = await response.json();
+        console.log('Respuesta de cursos:', result);
 
         if (result.success) {
-            const listaCursos = document.getElementById('lista-cursos');
-            listaCursos.innerHTML = '';
+            // Llenar el select de filtro
+            const filtroCurso = document.querySelector('select[name="filtro_curso"]');
+            // Llenar el select del modal
+            const selectCursoModal = document.querySelector('select[name="id_curso"]');
 
-            result.data.forEach(curso => {
-                listaCursos.innerHTML += `
-                    <div class="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border"
-                         onclick="seleccionarCurso(${curso.id_curso}, '${curso.nombre_curso}')">
-                        <h4 class="font-semibold text-lg text-gray-800">${curso.nombre_curso}</h4>
-                        <p class="text-sm text-gray-600">Ciclo: ${curso.ciclo}</p>
-                        <p class="text-sm text-gray-600 mt-2">
-                            <span class="font-medium">${curso.total_secciones || 0}</span> secciones
-                        </p>
-                    </div>
-                `;
-            });
+            const opcionesHTML = `
+                <option value="">Todos los cursos</option>
+                ${result.data.map(curso => `
+                    <option value="${curso.id_curso}">
+                        ${curso.nombre_curso} (Ciclo ${curso.ciclo})
+                    </option>
+                `).join('')}
+            `;
+
+            if (filtroCurso) {
+                filtroCurso.innerHTML = opcionesHTML;
+                console.log('Select de filtro actualizado');
+            }
+
+            if (selectCursoModal) {
+                selectCursoModal.innerHTML = opcionesHTML.replace('Todos los cursos', 'Seleccione un curso');
+                console.log('Select del modal actualizado');
+            }
+        } else {
+            throw new Error(result.message || 'Error al cargar los cursos');
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al cargar cursos:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudieron cargar los cursos'
+            text: 'No se pudieron cargar los cursos: ' + error.message
         });
     }
 }
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Cargado - Inicializando eventos');
+
+    // Cargar cursos al entrar a la sección de secciones
+    const seccionesLink = document.querySelector('[data-section="secciones"]');
+    if (seccionesLink) {
+        seccionesLink.addEventListener('click', async () => {
+            console.log('Click en secciones - Cargando cursos');
+            await cargarCursos();
+            await cargarSecciones();
+        });
+    }
+
+    // Cargar cursos al abrir el modal de nueva sección
+    const btnNuevaSeccion = document.querySelector('.btn-nueva-seccion');
+    if (btnNuevaSeccion) {
+        btnNuevaSeccion.addEventListener('click', async () => {
+            console.log('Click en nueva sección - Cargando cursos');
+            await cargarCursos();
+            mostrarModalCrearSeccion();
+        });
+    }
+
+    // Cargar datos iniciales si estamos en la sección de secciones
+    if (window.location.hash === '#secciones') {
+        console.log('Carga inicial de secciones');
+        cargarCursos();
+        cargarSecciones();
+    }
+});
 
 // Función para seleccionar un curso y mostrar sus secciones
 async function seleccionarCurso(idCurso, nombreCurso) {
@@ -1481,47 +1527,31 @@ async function cargarCursos() {
 // Función para cargar las secciones
 async function cargarSecciones() {
     try {
-        const response = await fetch('/drive_ucv/secciones/listar');
+        const response = await fetch('/drive_ucv/secciones/listar', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Error HTTP: ${response.status}`);
+        }
+
         const result = await response.json();
 
         if (result.success) {
-            const tablaSecciones = document.getElementById('tabla-secciones');
-            tablaSecciones.innerHTML = '';
-
-            result.data.forEach(seccion => {
-                tablaSecciones.innerHTML += `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${seccion.nombre_curso}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">Ciclo ${seccion.ciclo}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${seccion.nombre_seccion}</td>
-                        <td class="px-6 py-4">${seccion.docentes || 'Sin asignar'}</td>
-                        <td class="px-6 py-4 text-center">${seccion.total_alumnos || 0}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                ${seccion.status === '1' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                ${seccion.status === '1' ? 'Activa' : 'Inactiva'}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="editarSeccion(${seccion.id_seccion})"
-                                    class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="cambiarEstadoSeccion(${seccion.id_seccion}, '${seccion.status === '1' ? '0' : '1'}')"
-                                    class="text-${seccion.status === '1' ? 'red' : 'green'}-600 hover:text-${seccion.status === '1' ? 'red' : 'green'}-900">
-                                <i class="fas fa-${seccion.status === '1' ? 'ban' : 'check-circle'}"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
+            actualizarTablaSecciones(result.data);
+        } else {
+            throw new Error(result.message || 'Error al cargar las secciones');
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error en cargarSecciones:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudieron cargar las secciones'
+            text: error.message || 'No se pudieron cargar las secciones'
         });
     }
 }
@@ -2240,6 +2270,118 @@ async function cambiarEstadoDocente(id, estado) {
         }
     }
 }
+
+// Función para filtrar secciones
+async function filtrarSecciones() {
+    try {
+        const cursoId = document.querySelector('select[name="filtro_curso"]').value;
+        const ciclo = document.querySelector('select[name="filtro_ciclo"]').value;
+        const estado = document.querySelector('select[name="filtro_estado"]').value;
+
+        const response = await fetch('/drive_ucv/secciones/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                curso_id: cursoId,
+                ciclo: ciclo,
+                estado: estado
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            actualizarTablaSecciones(result.data);
+        } else {
+            throw new Error(result.message || 'Error al filtrar secciones');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al filtrar las secciones'
+        });
+    }
+}
+
+// Función auxiliar para actualizar la tabla de secciones
+function actualizarTablaSecciones(secciones) {
+    const tablaSecciones = document.getElementById('tabla-secciones');
+    tablaSecciones.innerHTML = '';
+
+    secciones.forEach(seccion => {
+        tablaSecciones.innerHTML += `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">${seccion.nombre_curso}</td>
+                <td class="px-6 py-4 whitespace-nowrap">Ciclo ${seccion.ciclo}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${seccion.nombre_seccion}</td>
+                <td class="px-6 py-4">${seccion.docentes}</td>
+                <td class="px-6 py-4 text-center">${seccion.total_alumnos}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        ${seccion.status === '1' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${seccion.status === '1' ? 'Activa' : 'Inactiva'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="editarSeccion(${seccion.id_seccion})"
+                            class="text-blue-600 hover:text-blue-900 mr-3">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="cambiarEstadoSeccion(${seccion.id_seccion}, '${seccion.status === '1' ? '0' : '1'}')"
+                            class="text-${seccion.status === '1' ? 'red' : 'green'}-600 hover:text-${seccion.status === '1' ? 'red' : 'green'}-900">
+                        <i class="fas fa-${seccion.status === '1' ? 'ban' : 'check-circle'}"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// Función para cargar los cursos en el select del modal
+async function cargarCursosEnSelect() {
+    try {
+        const response = await fetch('/drive_ucv/cursos/listar');
+        const result = await response.json();
+
+        if (result.success) {
+            const selectCurso = document.querySelector('select[name="id_curso"]');
+            selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
+
+            result.data.forEach(curso => {
+                selectCurso.innerHTML += `
+                    <option value="${curso.id_curso}">
+                        ${curso.nombre_curso} (Ciclo ${curso.ciclo})
+                    </option>
+                `;
+            });
+        } else {
+            throw new Error(result.message || 'Error al cargar los cursos');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron cargar los cursos'
+        });
+    }
+}
+
+// Llamar a esta función cuando se abra el modal
+document.addEventListener('DOMContentLoaded', function() {
+    const btnNuevaSeccion = document.querySelector('.btn-nueva-seccion');
+    if (btnNuevaSeccion) {
+        btnNuevaSeccion.addEventListener('click', function() {
+            cargarCursosEnSelect();
+            mostrarModalCrearSeccion();
+        });
+    }
+});
 </script>
 @endsection
 
