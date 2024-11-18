@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/editar/{id}', [DocenteController::class, 'editarDocente']);
         Route::post('/crear', [DocenteController::class, 'crearDocente']);
         Route::post('/filtrar', [DocenteController::class, 'filtrar'])->name('docentes.filtrar');
+        Route::post('/verificar-codigo', [DocenteController::class, 'verificarCodigo'])->name('docentes.verificar-codigo');
     });
 
     Route::prefix('cursos')->group(function () {

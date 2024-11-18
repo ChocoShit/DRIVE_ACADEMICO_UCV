@@ -102,15 +102,59 @@ class DocenteController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'codigo' => 'required|integer|min:18|max:100',
-                'email' => 'required|email|max:100|unique:datos_persona,email',
-                'celular' => 'nullable|string|max:15',
-                'username' => 'required|string|max:50|unique:usuario,username',
-                'password' => 'required|string|min:6|max:20'
+                'codigo' => [
+                    'required',
+                    'string',
+                    'size:10',
+                    'unique:datos_persona,codigo',
+                    'regex:/^\d{10}$/'
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:100',
+                    'regex:/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/',
+                    'unique:datos_persona,email'
+                ],
+                'celular' => ['required', 'regex:/^9\d{8}$/'],
+                'username' => [
+                    'required',
+                    'string',
+                    'min:4',
+                    'unique:usuario,username'
+                ],
+                'password' => ['required', 'string', 'min:6']
+            ], [
+                'nombres.required' => 'El nombre es obligatorio',
+                'apellidos.required' => 'Los apellidos son obligatorios',
+                'codigo.required' => 'El código es obligatorio',
+                'codigo.regex' => 'El código debe tener exactamente 10 dígitos numéricos',
+                'codigo.unique' => 'El código ya está registrado',
+                'email.required' => 'El email es obligatorio',
+                'email.email' => 'El formato del email no es válido',
+                'email.regex' => 'Debe usar su correo institucional (@ucvvirtual.edu.pe)',
+                'email.unique' => 'Este correo ya está registrado',
+                'celular.required' => 'El número de celular es obligatorio',
+                'celular.regex' => 'El número de celular debe empezar con 9 y tener 9 dígitos',
+                'username.required' => 'El nombre de usuario es obligatorio',
+                'username.min' => 'El nombre de usuario debe tener al menos 4 caracteres',
+                'username.unique' => 'Este nombre de usuario ya está registrado',
+                'password.required' => 'La contraseña es obligatoria',
+                'password.min' => 'La contraseña debe tener al menos 6 caracteres'
             ]);
 
-            // Encriptar contraseña antes de enviarla al SP
+            // Encriptar contraseña
             $hashedPassword = bcrypt($request->password);
+
+
+            Log::info('Datos a enviar:', [
+                'nombres' => $request->nombres,
+                'apellidos' => $request->apellidos,
+                'codigo' => $request->codigo,
+                'email' => $request->email,
+                'celular' => $request->celular,
+                'username' => $request->username
+            ]);
 
             $result = DB::select('CALL sp_crear_docente(?, ?, ?, ?, ?, ?, ?)', [
                 $request->nombres,
@@ -119,7 +163,7 @@ class DocenteController extends Controller
                 $request->email,
                 $request->celular,
                 $request->username,
-                $hashedPassword  // Enviamos la contraseña ya encriptada
+                $hashedPassword
             ]);
 
             return response()->json([
@@ -130,6 +174,12 @@ class DocenteController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error al crear docente: ' . $e->getMessage());
+            if (strpos($e->getMessage(), 'datos_persona.codigo_UNIQUE') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El código ingresado ya está registrado en el sistema'
+                ], 422);
+            }
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el docente: ' . $e->getMessage()
@@ -143,10 +193,32 @@ class DocenteController extends Controller
             $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'codigo' => 'required|integer|min:18|max:100',
-                'email' => 'required|email|max:100',
-                'celular' => 'nullable|string|max:15',
-                'username' => 'required|string|max:50'
+                'codigo' => [
+                    'required',
+                    'string',
+                    'size:10',
+                    'unique:datos_persona,codigo,'.$id.',id_usuario',
+                    'regex:/^\d{10}$/'
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:100',
+                    'regex:/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/',
+                    'unique:datos_persona,email,'.$id.',id_usuario'
+                ],
+                'celular' => [
+                    'required',
+                    'string',
+                    'size:9',
+                    'regex:/^9\d{8}$/'
+                ],
+                'username' => [
+                    'required',
+                    'string',
+                    'max:50',
+                    'unique:usuario,username,'.$id.',id_usuario'
+                ]
             ]);
 
             $result = DB::select('CALL sp_editar_docente(?, ?, ?, ?, ?, ?, ?)', [
@@ -173,30 +245,60 @@ class DocenteController extends Controller
         }
     }
     public function filtrar(Request $request)
-{
-    try {
-        $busqueda = $request->busqueda ?? null;
-        $estado = $request->estado ?? null;
-        $fechaInicio = $request->fecha_inicio ? date('Y-m-d', strtotime($request->fecha_inicio)) : null;
-        $fechaFin = $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : null;
+    {
+        try {
+            Log::info('Iniciando filtrado de docentes', $request->all());
 
-        // Llamada al procedimiento almacenado
-        $docentes = DB::select('CALL sp_filtrar_docentes(?, ?, ?, ?)', [
-            $busqueda,
-            $estado,
-            $fechaInicio,
-            $fechaFin
-        ]);
+            $busqueda = $request->busqueda;
+            $estado = $request->estado !== '' ? $request->estado : null;
+            $fechaInicio = $request->fecha_inicio ? date('Y-m-d', strtotime($request->fecha_inicio)) : null;
+            $fechaFin = $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : null;
 
-        return response()->json([
-            'success' => true,
-            'data' => $docentes
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al filtrar docentes: ' . $e->getMessage()
-        ], 500);
+            $docentes = DB::select('CALL sp_filtrar_docentes(?, ?, ?, ?)', [
+                $busqueda,
+                $estado,
+                $fechaInicio,
+                $fechaFin
+            ]);
+
+            Log::info('Docentes filtrados:', ['count' => count($docentes)]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $docentes
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al filtrar docentes: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al filtrar docentes: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
+    public function verificarCodigo(Request $request)
+    {
+        try {
+            $request->validate([
+                'codigo' => 'required|string|size:10'
+            ]);
+
+            $existe = DB::table('datos_persona')
+                ->where('codigo', $request->codigo)
+                ->exists();
+
+            return response()->json([
+                'success' => true,
+                'available' => !$existe,
+                'message' => $existe ? 'Código ya registrado' : 'Código disponible'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al verificar código: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar el código'
+            ], 500);
+        }
+    }
 }

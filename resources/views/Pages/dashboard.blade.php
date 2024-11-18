@@ -213,7 +213,7 @@ DRIVE UCV
                     </div>
                 </div>
 
-                <!-- Modal para Crear/Editar Alumno -->
+<!------------------------------------------------------- Modal para Crear/Editar Alumno ---------------------------------------------------------------------->
                 <div id="modal-alumno" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
                     <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
                         <!-- Asegúrate de que este ID existe -->
@@ -301,7 +301,7 @@ DRIVE UCV
                 </div>
             </section>
 
-            <!------------------------------------------------------------------- Sección Docentes ----------------------------------------------------->
+<!------------------------------------------------------------------- Sección Docentes ----------------------------------------------------->
             <section id="docentes-section" class="section-content hidden">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex justify-between items-center mb-6">
@@ -427,7 +427,7 @@ DRIVE UCV
                     </div>
                 </div>
 
-                <!-- Modal para Crear/Editar Sección -->
+<!------------------------------------------------------------ Modal para Crear/Editar Sección ---------------------------------------------------->
                 <div id="modal-seccion" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
                     <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
                         <div class="flex justify-between items-center mb-4">
@@ -477,7 +477,7 @@ DRIVE UCV
                 </div>
             </section>
 
-            <!-- Sección Asignaciones -->
+<!---------------------------------------------------------------------------- Sección Asignaciones ---------------------------------------------------------------------------->
             <section id="asignaciones-section" class="section-content hidden">
                 <h1 class="text-2xl font-bold mb-6">Asignaciones</h1>
                 <div class="bg-white rounded-lg shadow p-6">
@@ -540,7 +540,7 @@ DRIVE UCV
     </div>
 </div>
 
-<!-- Modal para Crear/Editar Docente -->
+<!------------------------------------------------------------------ Modal para Crear/Editar Docente ------------------------------------------------------------------->
 <div id="modal-docente" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
@@ -552,61 +552,97 @@ DRIVE UCV
 
         <form id="form-docente" onsubmit="guardarDocente(event)">
             <div class="grid grid-cols-2 gap-4">
+                <!-- Nombres -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nombres</label>
-                    <input type="text" name="nombres" required
+                    <input type="text"
+                           name="nombres"
+                           id="docente-nombres"
+                           required
+                           onchange="guardarDatosTemporalesDocente(event)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
 
                 <!-- Apellidos -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Apellidos</label>
-                    <input type="text" name="apellidos" required
+                    <input type="text"
+                           name="apellidos"
+                           id="docente-apellidos"
+                           required
+                           onchange="guardarDatosTemporalesDocente(event)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
-                <!-- Edad -->
+
+                <!-- Código -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Código</label>
-                    <input type="number" name="código" required
+                    <input type="text"
+                           name="codigo"
+                           id="docente-codigo"
+                           required
+                           minlength="10"
+                           maxlength="10"
+                           pattern="\d{10}"
+                           onchange="validarCodigo(this)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <span class="text-xs codigo-message"></span>
                 </div>
 
                 <!-- Email -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" required
+                    <input type="email"
+                           name="email"
+                           id="docente-email"
+                           required
+                           pattern="[a-zA-Z0-9._+-]+@ucvvirtual\.edu\.pe$"
+                           onchange="validarEmailInstitucional(this)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <span class="text-xs"></span>
                 </div>
 
                 <!-- Celular -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Celular</label>
-                    <input type="text" name="celular"
+                    <input type="text"
+                           name="celular"
+                           id="docente-celular"
+                           maxlength="9"
+                           pattern="9[0-9]{8}"
+                           onchange="validarCelular(this)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <span class="text-xs celular-message"></span>
                 </div>
 
                 <!-- Username -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                    <input type="text" name="username" required
+                    <input type="text"
+                           name="username"
+                           id="docente-username"
+                           required
+                           minlength="4"
+                           onchange="validarUsuarioDisponible(this.value)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <span id="username-message" class="text-xs"></span>
                 </div>
 
-                <!-- Password (solo visible al crear) -->
-                <div class="mb-4" id="password-container">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                        Contraseña
-                    </label>
+                <!-- Password -->
+                <div id="password-container-docente">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
                     <input type="password"
                            name="password"
-                           id="password-docente"
+                           id="docente-password"
                            minlength="6"
+                           onchange="guardarDatosTemporalesDocente(event)"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
             </div>
 
             <div class="mt-6 flex justify-end space-x-3">
-                <button type="button" onclick="cerrarModalDocente()"
+                <button type="button"
+                        onclick="cerrarModalDocente()"
                         class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
                     Cancelar
                 </button>
@@ -816,23 +852,15 @@ async function cargarAlumnos() {
                         <td class="px-6 py-4">${alumno.celular || '-'}</td>
                         <td class="px-6 py-4">${alumno.username}</td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center justify-center">
+                            <div class="flex items-center">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox"
                                            class="sr-only peer"
-                                           ${estadoActual ? 'checked' : ''}
+                                           ${alumno.status == 1 ? 'checked' : ''}
                                            onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
-                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer
-                                            peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-                                            dark:peer-focus:ring-blue-800 dark:bg-gray-700
-                                            peer-checked:after:translate-x-full peer-checked:after:border-white
-                                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                            after:bg-white after:border-gray-300 after:border after:rounded-full
-                                            after:h-5 after:w-5 after:transition-all dark:border-gray-600
-                                            peer-checked:bg-blue-600">
-                                    </div>
-                                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 status-text">
-                                        ${estadoActual ? 'Activo' : 'Inactivo'}
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <span class="ml-3 text-sm font-medium status-text ${alumno.status == 1 ? 'text-green-600' : 'text-red-600'}">
+                                        ${alumno.status == 1 ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </label>
                             </div>
@@ -928,9 +956,10 @@ function cerrarModalAlumno() {
     const formAlumno = document.getElementById('form-alumno');
 
     if (modalAlumno) {
-        const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+        const formData = new FormData(formAlumno);
+        const hasData = Array.from(formData.values()).some(value => value !== '');
 
-        if (Object.keys(formData).length > 0) {
+        if (hasData) {
             Swal.fire({
                 title: '¿Está seguro de cerrar?',
                 text: "Se perderán los datos ingresados",
@@ -943,7 +972,6 @@ function cerrarModalAlumno() {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    localStorage.removeItem('formAlumnoTemp');
                     if (formAlumno) formAlumno.reset();
                     modalAlumno.classList.add('hidden');
                 }
@@ -1199,36 +1227,107 @@ async function editarAlumno(id) {
 }
 
 /////////////////////////////////////////////////////////filtrar alumnos////////////////////////////////////////////////////////////
-function filtrarAlumnos() {
-    const searchInput = document.getElementById('searchInput');
-    const searchField = document.getElementById('searchField');
-    const searchText = searchInput.value.toLowerCase();
-    const rows = document.querySelectorAll('#tabla-alumnos tr');
+async function filtrarAlumnos() {
+    try {
+        const busqueda = document.getElementById('searchAlumno').value;
+        const ciclo = document.getElementById('filterCiclo').value;
+        const estado = document.getElementById('filterEstadoAlumno').value;
+        const fechaInicio = document.getElementById('fechaInicioAlumno').value;
+        const fechaFin = document.getElementById('fechaFinAlumno').value;
 
-    rows.forEach(row => {
-        let text = '';
-        if (searchField.value === 'all') {
-            // Buscar en todas las columnas excepto la última (acciones)
-            const cells = row.querySelectorAll('td:not(:last-child)');
-            text = Array.from(cells).map(cell => cell.textContent).join(' ').toLowerCase();
+        const response = await fetch('/drive_ucv/alumnos/filtrar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                busqueda: busqueda,
+                ciclo: ciclo,
+                estado: estado,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            actualizarTablaAlumnos(result.data);
         } else {
-            // Buscar solo en la columna seleccionada
-            const cellIndex = {
-                'nombres': 0,
-                'apellidos': 1,
-                'codigo': 2,  // Agregamos el índice para código
-                'email': 4,
-                'ciclo': 3,
-                'username': 6
-            }[searchField.value];
-
-            const cell = row.querySelector(`td:nth-child(${cellIndex + 1})`);
-            text = cell ? cell.textContent.toLowerCase() : '';
+            throw new Error(result.message || 'Error al filtrar alumnos');
         }
-
-        row.style.display = text.includes(searchText) ? '' : 'none';
-    });
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al filtrar alumnos'
+        });
+    }
 }
+
+function actualizarTablaAlumnos(alumnos) {
+    const tbody = document.getElementById('tabla-alumnos');
+    if (!tbody) return;
+
+    tbody.innerHTML = alumnos.map(alumno => `
+        <tr data-user-id="${alumno.id_usuario}">
+            <td class="px-6 py-4">${alumno.nombres || ''}</td>
+            <td class="px-6 py-4">${alumno.apellidos || ''}</td>
+            <td class="px-6 py-4">${alumno.codigo || ''}</td>
+            <td class="px-6 py-4">${alumno.ciclo || ''}</td>
+            <td class="px-6 py-4">${alumno.email || ''}</td>
+            <td class="px-6 py-4">${alumno.celular || ''}</td>
+            <td class="px-6 py-4">${alumno.username || ''}</td>
+            <td class="px-6 py-4">
+                <div class="flex items-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox"
+                               class="sr-only peer"
+                               ${alumno.status == 1 ? 'checked' : ''}
+                               onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <span class="ml-3 text-sm font-medium status-text ${alumno.status == 1 ? 'text-green-600' : 'text-red-600'}">
+                            ${alumno.status == 1 ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </label>
+                </div>
+            </td>
+            <td class="px-6 py-4">${alumno.fecha_actualizacion || ''}</td>
+            <td class="px-6 py-4 text-center">
+                <button onclick="editarAlumno(${alumno.id_usuario})"
+                        class="text-blue-600 hover:text-blue-900">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Event listeners para los filtros
+document.addEventListener('DOMContentLoaded', function() {
+    // Búsqueda con debounce
+    const searchAlumno = document.getElementById('searchAlumno');
+    let timeoutId;
+    if (searchAlumno) {
+        searchAlumno.addEventListener('input', () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(filtrarAlumnos, 300);
+        });
+    }
+
+    // Otros filtros
+    const filterCiclo = document.getElementById('filterCiclo');
+    const filterEstadoAlumno = document.getElementById('filterEstadoAlumno');
+    const fechaInicioAlumno = document.getElementById('fechaInicioAlumno');
+    const fechaFinAlumno = document.getElementById('fechaFinAlumno');
+
+    filterCiclo?.addEventListener('change', filtrarAlumnos);
+    filterEstadoAlumno?.addEventListener('change', filtrarAlumnos);
+    fechaInicioAlumno?.addEventListener('change', filtrarAlumnos);
+    fechaFinAlumno?.addEventListener('change', filtrarAlumnos);
+});
 
 // Variables globales
 let cursoSeleccionadoId = null;
@@ -1343,12 +1442,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalSeccion = document.getElementById('modal-seccion');
             if (!modalSeccion._initialized) {
                 modalSeccion._initialized = true;
-                // Cerrar modal al hacer clic fuera
-                modalSeccion.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        cerrarModalSeccion();
-                    }
-                });
             }
         });
     }
@@ -1562,27 +1655,21 @@ async function cargarDocentes() {
                     <td class="px-6 py-4">${docente.username}</td>
                     <td class="px-6 py-4">${docente.secciones_asignadas || 'Sin asignaciones'}</td>
                     <td class="px-6 py-4">
-                        <div class="flex items-center justify-center">
+                        <div class="flex items-center">
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox"
                                        class="sr-only peer"
-                                       ${estadoActual ? 'checked' : ''}
+                                       ${docente.status == 1 ? 'checked' : ''}
                                        onchange="cambiarEstado('docentes', ${docente.id_usuario}, this.checked)">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                            peer-focus:ring-blue-300 rounded-full peer
-                                            peer-checked:after:translate-x-full peer-checked:after:border-white
-                                            after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                            after:bg-white after:border-gray-300 after:border after:rounded-full
-                                            after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                                <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
-                                    ${estadoActual ? 'Activo' : 'Inactivo'}
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <span class="ml-3 text-sm font-medium status-text ${docente.status == 1 ? 'text-green-600' : 'text-red-600'}">
+                                    ${docente.status == 1 ? 'Activo' : 'Inactivo'}
                                 </span>
                             </label>
                         </div>
                     </td>
-                    <td class="px-6 py-4">${fechaActualizacion}</td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4">${docente.fecha_actualizacion || ''}</td>
+                    <td class="px-6 py-4">
                         <button onclick="editarDocente(${docente.id_usuario})"
                                 class="text-blue-600 hover:text-blue-900">
                             <i class="fas fa-edit"></i>
@@ -1613,50 +1700,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
+////////////////////////////////////////////////////////editar docente////////////////////////////////////////////////////////
 async function editarDocente(id) {
     try {
-        console.log('Editando docente:', id);
         const response = await fetch(`/drive_ucv/docentes/${id}`);
         const result = await response.json();
 
         if (result.success) {
             const docente = result.data;
             const form = document.getElementById('form-docente');
+            const modalTitulo = document.getElementById('modal-docente-titulo');
 
-            // Llenar el formulario con los datos existentes
+            // Asignar valores a los campos
+            document.getElementById('docente-nombres').value = docente.nombres || '';
+            document.getElementById('docente-apellidos').value = docente.apellidos || '';
+            document.getElementById('docente-codigo').value = docente.codigo || '';
+            document.getElementById('docente-email').value = docente.email || '';
+            document.getElementById('docente-celular').value = docente.celular || '';
+            document.getElementById('docente-username').value = docente.username || '';
 
-            form.querySelector('[name="nombres"]').value = docente.nombres;
-            form.querySelector('[name="apellidos"]').value = docente.apellidos;
-            form.querySelector('[name="codigo"]').value = docente.codigo;
-            form.querySelector('[name="email"]').value = docente.email;
-            form.querySelector('[name="celular"]').value = docente.celular || '';
-            form.querySelector('[name="username"]').value = docente.username;
-
-            // Ocultar campo de contraseña si existe
-            const passwordField = form.querySelector('[name="password"]');
-            if (passwordField) {
-                passwordField.closest('div').style.display = 'none';
+            // Ocultar y deshabilitar el campo de contraseña
+            const passwordContainer = document.getElementById('password-container-docente');
+            if (passwordContainer) {
+                passwordContainer.style.display = 'none';
+                const passwordInput = document.getElementById('docente-password');
+                if (passwordInput) {
+                    passwordInput.removeAttribute('required');
+                    passwordInput.disabled = true;
+                }
             }
 
             // Cambiar título y guardar ID para la edición
-            document.getElementById('modal-docente-titulo').textContent = 'Editar Docente';
+            modalTitulo.textContent = 'Editar Docente';
             form.dataset.editId = id;
 
             // Mostrar modal
             document.getElementById('modal-docente').classList.remove('hidden');
+        } else {
+            throw new Error(result.message || 'No se pudo cargar la información del docente');
         }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudo cargar la información del docente'
+            text: error.message || 'No se pudo cargar la información del docente'
         });
     }
 }
 
-// Función para guardar docente (crear/editar)
+// Función para guardar docente
 async function guardarDocente(event) {
     event.preventDefault();
 
@@ -1665,36 +1758,59 @@ async function guardarDocente(event) {
         const formData = new FormData(form);
         const editId = form.dataset.editId;
 
-        const data = {
+        // Validaciones específicas
+        const codigo = formData.get('codigo');
+        if (!/^\d{10}$/.test(codigo)) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error de validación',
+                text: 'El código debe tener exactamente 10 dígitos',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
 
+        // Preparar datos
+        const data = {
             nombres: formData.get('nombres'),
             apellidos: formData.get('apellidos'),
-            codigo: formData.get('codigo'),
-            edad: formData.get('edad'),
+            codigo: codigo.padStart(10, '0'), // Asegurar 10 dígitos
             email: formData.get('email'),
-            celular: formData.get('celular'),
+            celular: formData.get('celular') ? formData.get('celular').padStart(9, '0') : null,
             username: formData.get('username')
         };
 
-        // Solo incluir password si es nuevo docente o si se ha ingresado uno nuevo
+        // Agregar password solo si es necesario
         if (!editId || formData.get('password')) {
             data.password = formData.get('password');
         }
 
-        const url = editId
-            ? `/drive_ucv/docentes/editar/${editId}`
-            : '/drive_ucv/docentes/crear';
-
-        const response = await fetch(url, {
+        const response = await fetch(editId ? `/drive_ucv/docentes/editar/${editId}` : '/drive_ucv/docentes/crear', {
             method: editId ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify(data)
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 422) {
+                const errores = result.errors || {};
+                const mensajesError = Object.values(errores).flat();
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de validación',
+                    html: mensajesError.join('<br>'),
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+            throw new Error(result.message || `Error al ${editId ? 'actualizar' : 'crear'} el docente`);
+        }
 
         if (result.success) {
             await Swal.fire({
@@ -1705,129 +1821,78 @@ async function guardarDocente(event) {
                 showConfirmButton: false
             });
 
-            cerrarModalDocente();
-            activarSeccion('docentes');
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'Error al procesar la solicitud'
-        });
-    }
-}
-
-// Función para guardar alumno (crear/editar)
-async function guardarAlumno(event) {
-    event.preventDefault();
-
-    try {
-        const form = event.target;
-        const formData = new FormData(form);
-
-        // Validar contraseña
-        const password = formData.get('password');
-        if (password && password.length < 6) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'La contraseña debe tener al menos 6 caracteres'
-            });
-            return;
-        }
-
-        const editId = form.dataset.editId;
-
-        const data = {
-
-            nombres: formData.get('nombres'),
-            apellidos: formData.get('apellidos'),
-            codigo: formData.get('codigo'),
-            email: formData.get('email'),
-            celular: formData.get('celular'),
-            username: formData.get('username'),
-            ciclo: formData.get('ciclo')
-        };
-
-        // Si es nuevo alumno, agregar password
-        if (!editId) {
-            data.password = formData.get('password');
-        }
-
-        const url = editId
-            ? `/drive_ucv/alumnos/editar/${editId}`
-            : '/drive_ucv/alumnos/crear';
-
-        const response = await fetch(url, {
-            method: editId ? 'PUT' : 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            await Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: editId ? 'Alumno actualizado correctamente' : 'Alumno creado correctamente',
-                timer: 1500,
-                showConfirmButton: false
-            });
-
-            // Limpiar datos y cerrar directamente sin confirmación
-            localStorage.removeItem('formAlumnoTemp');
+            localStorage.removeItem('formDocenteTemp');
             form.reset();
-            document.getElementById('modal-alumno').classList.add('hidden');
-            activarSeccion('alumnos');
-        } else {
-            throw new Error(result.message);
+            document.getElementById('modal-docente').classList.add('hidden');
+            await cargarDocentes();
         }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: error.message || 'Error al guardar el alumno'
+            text: error.message || 'Error al procesar la solicitud',
+            confirmButtonText: 'Entendido'
         });
     }
 }
 
+// Inicializar eventos cuando el documento esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    const formDocente = document.getElementById('form-docente');
+    if (formDocente) {
+        const inputs = formDocente.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', guardarDatosTemporalesDocente);
+        });
+    }
+});
 
-function cerrarModalDocente() {
-    const modal = document.getElementById('modal-docente');
-    const form = document.getElementById('form-docente');
-
-    // Limpiar el formulario
-    form.reset();
-    // Eliminar el ID de edición si existe
-    delete form.dataset.editId;
-    // Ocultar el modal
-    modal.classList.add('hidden');
-}
-
-function guardarDatosTemporales(event) {
+// Función para guardar datos temporales del docente
+function guardarDatosTemporalesDocente(event) {
     const input = event.target;
-    const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+    const formData = JSON.parse(localStorage.getItem('formDocenteTemp') || '{}');
     formData[input.name] = input.value;
-    localStorage.setItem('formAlumnoTemp', JSON.stringify(formData));
-    console.log('Datos guardados:', formData);
+    localStorage.setItem('formDocenteTemp', JSON.stringify(formData));
 }
 
-function cerrarModalAlumno() {
-    const modalAlumno = document.getElementById('modal-alumno');
-    const formAlumno = document.getElementById('form-alumno');
+// Función para mostrar el modal de crear docente
+function mostrarModalCrearDocente() {
+    const form = document.getElementById('form-docente');
+    const modalTitulo = document.getElementById('modal-docente-titulo');
 
-    if (modalAlumno) {
-        const formData = JSON.parse(localStorage.getItem('formAlumnoTemp') || '{}');
+    // Resetear el formulario
+    form.reset();
+    delete form.dataset.editId;
 
-        if (Object.keys(formData).length > 0) {
+    // Mostrar y habilitar el campo de contraseña para crear
+    const passwordField = document.getElementById('docente-password');
+    const passwordContainer = document.getElementById('password-container-docente');
+    if (passwordContainer) {
+        passwordContainer.style.display = 'block';
+        if (passwordField) {
+            passwordField.required = true;
+            passwordField.disabled = false;
+        }
+    }
+
+    // Cambiar título
+    modalTitulo.textContent = 'Nuevo Docente';
+
+    // Mostrar modal
+    document.getElementById('modal-docente').classList.remove('hidden');
+}
+
+// Función para cerrar el modal de docente
+function cerrarModalDocente() {
+    const modalDocente = document.getElementById('modal-docente');
+    const formDocente = document.getElementById('form-docente');
+
+    if (modalDocente) {
+        const formData = new FormData(formDocente);
+        const hasData = Array.from(formData.values()).some(value => value !== '');
+
+        if (hasData) {
             Swal.fire({
                 title: '¿Está seguro de cerrar?',
                 text: "Se perderán los datos ingresados",
@@ -1840,327 +1905,62 @@ function cerrarModalAlumno() {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    localStorage.removeItem('formAlumnoTemp');
-                    if (formAlumno) formAlumno.reset();
-                    modalAlumno.classList.add('hidden');
+                    if (formDocente) formDocente.reset();
+                    modalDocente.classList.add('hidden');
                 }
             });
         } else {
-            modalAlumno.classList.add('hidden');
+            modalDocente.classList.add('hidden');
         }
     }
 }
-document.addEventListener('DOMContentLoaded', function() {
-    const formAlumno = document.getElementById('form-alumno');
-    if (formAlumno) {
-        const inputs = formAlumno.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            input.addEventListener('change', guardarDatosTemporales);
-        });
-    }
-});
 
-function mostrarModalCrearDocente() {
-    const modal = document.getElementById('modal-docente');
-    const form = document.getElementById('form-docente');
-    const titulo = document.getElementById('modal-docente-titulo');
-    const passwordField = form.querySelector('[name="password"]');
-    const passwordContainer = passwordField.closest('div');
-
-    // Limpiar el formulario
-    form.reset();
-    delete form.dataset.editId;
-
-    // Mostrar y hacer requerido el campo de contraseña para nuevo docente
-    if (passwordContainer) {
-        passwordContainer.style.display = 'block';
-        passwordField.required = true;
-    }
-
-    // Cambiar el título
-    titulo.textContent = 'Nuevo Docente';
-
-    // Mostrar el modal
-    modal.classList.remove('hidden');
-}
-// Agregar event listeners para cerrar el modal con Escape o clicking fuera
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('modal-docente');
-
-    // Cerrar con Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            cerrarModalDocente();
-        }
-    });
-
-    // Cerrar al hacer click fuera del modal
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            cerrarModalDocente();
-        }
-    });
-});
-//////////////////////////////////////////////////////////////////filtros////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////777 Función para filtrar alumnos////////////////////////////////////////////////////////////
-async function filtrarAlumnos() {
-    const busqueda = document.getElementById('searchAlumno').value;
-    const ciclo = document.getElementById('filterCiclo').value;
-    const estado = document.getElementById('filterEstadoAlumno').value;
-    const fechaInicio = document.getElementById('fechaInicioAlumno').value;
-    const fechaFin = document.getElementById('fechaFinAlumno').value;
-
+// Función para editar docente
+async function editarDocente(id) {
     try {
-        const response = await fetch('/drive_ucv/alumnos/filtrar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                busqueda,
-                ciclo,
-                estado,
-                fecha_inicio: fechaInicio,
-                fecha_fin: fechaFin
-            })
-        });
-
+        const response = await fetch(`/drive_ucv/docentes/${id}`);
         const result = await response.json();
 
         if (result.success) {
-            actualizarTablaAlumnos(result.data);
+            const docente = result.data;
+            const form = document.getElementById('form-docente');
+            const modalTitulo = document.getElementById('modal-docente-titulo');
+
+            // Asignar valores a los campos
+            document.getElementById('docente-nombres').value = docente.nombres || '';
+            document.getElementById('docente-apellidos').value = docente.apellidos || '';
+            document.getElementById('docente-codigo').value = docente.codigo || '';
+            document.getElementById('docente-email').value = docente.email || '';
+            document.getElementById('docente-celular').value = docente.celular || '';
+            document.getElementById('docente-username').value = docente.username || '';
+
+            // Ocultar y deshabilitar el campo de contraseña
+            const passwordContainer = document.getElementById('password-container-docente');
+            if (passwordContainer) {
+                passwordContainer.style.display = 'none';
+                const passwordInput = document.getElementById('docente-password');
+                if (passwordInput) {
+                    passwordInput.removeAttribute('required');
+                    passwordInput.disabled = true;
+                }
+            }
+
+            // Cambiar título y guardar ID para la edición
+            modalTitulo.textContent = 'Editar Docente';
+            form.dataset.editId = id;
+
+            // Mostrar modal
+            document.getElementById('modal-docente').classList.remove('hidden');
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || 'No se pudo cargar la información del docente');
         }
     } catch (error) {
         console.error('Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Error al filtrar alumnos'
+            text: error.message || 'No se pudo cargar la información del docente'
         });
-    }
-    /////////////////////////////////////////777actualizar tabla alumnos////////////////////////////////////////////////////////////
-    function actualizarTablaAlumnos(alumnos) {
-    const tablaAlumnos = document.getElementById('tabla-alumnos');
-    tablaAlumnos.innerHTML = '';
-
-    alumnos.forEach(alumno => {
-        const estadoActual = alumno.status == 1 || alumno.status === '1';
-        const fechaActualizacion = alumno.fecha_actualizacion
-            ? new Date(alumno.fecha_actualizacion).toLocaleString()
-            : 'No actualizado';
-
-        const row = `
-            <tr data-user-id="${alumno.id_usuario}">
-                <td class="px-6 py-4">${alumno.nombres}</td>
-                <td class="px-6 py-4">${alumno.apellidos}</td>
-                <td class="px-6 py-4">${alumno.codigo}</td>
-                <td class="px-6 py-4">${alumno.ciclo}</td>
-                <td class="px-6 py-4">${alumno.email}</td>
-                <td class="px-6 py-4">${alumno.celular || '-'}</td>
-                <td class="px-6 py-4">${alumno.username}</td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-center">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox"
-                                   class="sr-only peer"
-                                   ${estadoActual ? 'checked' : ''}
-                                   onchange="cambiarEstado('alumnos', ${alumno.id_usuario}, this.checked)">
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer
-                                      peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-                                      dark:peer-focus:ring-blue-800 dark:bg-gray-700
-                                      peer-checked:after:translate-x-full peer-checked:after:border-white
-                                      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                      after:bg-white after:border-gray-300 after:border after:rounded-full
-                                      after:h-5 after:w-5 after:transition-all dark:border-gray-600
-                                      peer-checked:bg-blue-600">
-                            </div>
-                            <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
-                                ${estadoActual ? 'Activo' : 'Inactivo'}
-                            </span>
-                        </label>
-                    </div>
-                </td>
-                <td class="px-6 py-4">${fechaActualizacion}</td>
-                <td class="px-6 py-4 text-center">
-                    <button onclick="editarAlumno(${alumno.id_usuario})"
-                            class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-        tablaAlumnos.insertAdjacentHTML('beforeend', row);
-    });
-}
-}
-
-///////////////////////////////////////777 Función para filtrar docentes///////////////////////////////////77
-async function filtrarDocentes() {
-    const busqueda = document.getElementById('searchDocente').value;
-    const estado = document.getElementById('filterEstadoDocente').value;
-    const fechaInicio = document.getElementById('fechaInicioDocente').value;
-    const fechaFin = document.getElementById('fechaFinDocente').value;
-
-    try {
-        const response = await fetch('/drive_ucv/docentes/filtrar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                busqueda,
-                estado,
-                fecha_inicio: fechaInicio,
-                fecha_fin: fechaFin
-            })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            actualizarTablaDocentes(result.data);
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error al filtrar docentes'
-        });
-    }
-    /////////////////////////////////////////7////actualizar tabla docentes////////////////////////////////////////////////////////////
-    function actualizarTablaDocentes(docentes) {
-    const tablaDocentes = document.getElementById('tabla-docentes');
-    tablaDocentes.innerHTML = '';
-
-    docentes.forEach(docente => {
-        const estadoActual = docente.status == 1 || docente.status === '1';
-        const fechaActualizacion = docente.fecha_actualizacion
-            ? new Date(docente.fecha_actualizacion).toLocaleString()
-            : 'No actualizado';
-
-        const row = document.createElement('tr');
-        row.setAttribute('data-user-id', docente.id_usuario);
-
-        row.innerHTML = `
-            <td class="px-6 py-4">${docente.nombres}</td>
-            <td class="px-6 py-4">${docente.apellidos}</td>
-            <td class="px-6 py-4">${docente.codigo}</td>
-            <td class="px-6 py-4">${docente.email}</td>
-            <td class="px-6 py-4">${docente.celular || '-'}</td>
-            <td class="px-6 py-4">${docente.username}</td>
-            <td class="px-6 py-4">${docente.secciones_asignadas || 'Sin asignaciones'}</td>
-            <td class="px-6 py-4">
-                <div class="flex items-center justify-center">
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox"
-                               class="sr-only peer"
-                               ${estadoActual ? 'checked' : ''}
-                               onchange="cambiarEstado('docentes', ${docente.id_usuario}, this.checked)">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
-                                    peer-focus:ring-blue-300 rounded-full peer
-                                    peer-checked:after:translate-x-full peer-checked:after:border-white
-                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                    after:bg-white after:border-gray-300 after:border after:rounded-full
-                                    after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                        </div>
-                        <span class="ml-3 text-sm font-medium status-text ${estadoActual ? 'text-green-600' : 'text-red-600'}">
-                            ${estadoActual ? 'Activo' : 'Inactivo'}
-                        </span>
-                    </label>
-                </div>
-            </td>
-            <td class="px-6 py-4">${fechaActualizacion}</td>
-            <td class="px-6 py-4 text-center">
-                <button onclick="editarDocente(${docente.id_usuario})"
-                        class="text-blue-600 hover:text-blue-900">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
-        `;
-
-        tablaDocentes.appendChild(row);
-    });
-}
-}
-
-// Agregar event listeners para los filtros
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listeners para filtros de alumnos
-    ['searchAlumno', 'filterCiclo', 'filterEstadoAlumno', 'fechaInicioAlumno', 'fechaFinAlumno'].forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            elemento.addEventListener('change', filtrarAlumnos);
-            if (id === 'searchAlumno') {
-                elemento.addEventListener('keyup', filtrarAlumnos);
-            }
-        }
-    });
-
-    // Event listeners para filtros de docentes
-    ['searchDocente', 'filterEstadoDocente', 'fechaInicioDocente', 'fechaFinDocente'].forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            elemento.addEventListener('change', filtrarDocentes);
-            if (id === 'searchDocente') {
-                elemento.addEventListener('keyup', filtrarDocentes);
-            }
-        }
-    });
-});
-
-///////////////////////////////////////////////777 Función para validar si el usuario es disponible////////////////////////////////////////////////////////////
-let timeoutId = null;
-async function validarUsuarioDisponible(username) {
-    const messageSpan = document.getElementById('username-message');
-
-    // Limpiar timeout previo
-    if (timeoutId) {
-        clearTimeout(timeoutId);
-    }
-
-    // Validar campo vacío
-    if (!username) {
-        messageSpan.textContent = '';
-        messageSpan.className = 'text-xs';
-        return;
-    }
-
-    try {
-        const response = await fetch('/drive_ucv/verificar-usuario', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',  // Agregar este header
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ username })
-        });
-
-        if (!response.ok) {
-            throw new Error('Error en la petición');
-        }
-
-        const result = await response.json();
-
-        if (result.disponible) {
-            messageSpan.textContent = 'Usuario disponible';
-            messageSpan.className = 'text-xs text-green-600';
-        } else {
-            messageSpan.textContent = 'Usuario no disponible';
-            messageSpan.className = 'text-xs text-red-600';
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        messageSpan.textContent = 'Error al verificar usuario';
-        messageSpan.className = 'text-xs text-red-600';
     }
 }
 
@@ -2182,6 +1982,262 @@ function validarEmailInstitucional(input) {
     } else {
         messageSpan.textContent = '✓ Formato de correo válido';
         messageSpan.className = 'text-xs text-green-600';
+    }
+}
+
+///////////////////////////////////////////////777 Función para validar si el usuario es disponible////////////////////////////////////////////////////////////
+let timeoutId = null;
+async function validarUsuarioDisponible(username) {
+    try {
+        const messageSpan = document.getElementById('username-message');
+        if (!username) {
+            messageSpan.textContent = '';
+            messageSpan.className = 'text-xs';
+            return;
+        }
+
+        const response = await fetch('/drive_ucv/verificar-usuario', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ username })
+        });
+
+        const result = await response.json();
+
+        if (result.available) {
+            messageSpan.textContent = '✓ Usuario disponible';
+            messageSpan.className = 'text-xs text-green-600';
+        } else {
+            messageSpan.textContent = '✗ Usuario no disponible';
+            messageSpan.className = 'text-xs text-red-600';
+        }
+    } catch (error) {
+        console.error('Error al verificar usuario:', error);
+    }
+}
+
+// Función para validar el formulario del docente
+function validarFormularioDocente(form) {
+    const codigo = form.querySelector('[name="codigo"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const celular = form.querySelector('[name="celular"]').value.trim();
+    const username = form.querySelector('[name="username"]').value.trim();
+    const password = form.querySelector('[name="password"]').value;
+
+    if (!codigo) {
+        throw new Error('El código es obligatorio');
+    }
+    if (!/^\d{10}$/.test(codigo)) {
+        throw new Error('El código debe tener exactamente 10 dígitos numéricos');
+    }
+    if (!/^\S+@\S+$/.test(email)) {
+        throw new Error('El email no es válido');
+    }
+    if (!/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/.test(email)) {
+        throw new Error('Debe usar su correo institucional (@ucvvirtual.edu.pe)');
+    }
+    if (celular && !/^9\d{8}$/.test(celular)) {
+        throw new Error('El número de celular debe empezar con 9 y tener 9 dígitos');
+    }
+    if (!username) {
+        throw new Error('El nombre de usuario es obligatorio');
+    }
+    if (username.length < 4) {
+        throw new Error('El nombre de usuario debe tener al menos 4 caracteres');
+    }
+    // Validar contraseña solo si es nuevo registro o si se ha ingresado una nueva
+    if (!form.dataset.editId && !password) {
+        throw new Error('La contraseña es obligatoria');
+    }
+    if (password && password.length < 6) {
+        throw new Error('La contraseña debe tener al menos 6 caracteres');
+    }
+}
+
+// Función para validar código
+function validarCodigo(input) {
+    const messageSpan = input.nextElementSibling;
+    const codigo = input.value.trim();
+
+    if (!codigo) {
+        messageSpan.textContent = '';
+        messageSpan.className = 'text-xs codigo-message';
+        return;
+    }
+
+    if (!/^\d{10}$/.test(codigo)) {
+        messageSpan.textContent = '✗ El código debe tener 10 dígitos';
+        messageSpan.className = 'text-xs codigo-message text-red-600';
+        return false;
+    }
+
+    messageSpan.textContent = '✓ Código válido';
+    messageSpan.className = 'text-xs codigo-message text-green-600';
+    return true;
+}
+
+// Función para validar celular
+function validarCelular(input) {
+    const messageSpan = input.nextElementSibling;
+    const celular = input.value.trim();
+
+    if (!celular) {
+        messageSpan.textContent = '';
+        messageSpan.className = 'text-xs celular-message';
+        return;
+    }
+
+    if (!/^9[0-9]{8}$/.test(celular)) {
+        messageSpan.textContent = '✗ El celular debe empezar con 9 y tener 9 dígitos';
+        messageSpan.className = 'text-xs celular-message text-red-600';
+        return false;
+    }
+
+    messageSpan.textContent = '✓ Número válido';
+    messageSpan.className = 'text-xs celular-message text-green-600';
+    return true;
+}
+
+// Función para filtrar docentes
+async function filtrarDocentes() {
+    try {
+        const busqueda = document.getElementById('searchDocente')?.value || '';
+        const estado = document.getElementById('filterEstadoDocente')?.value || '';
+        const fechaInicio = document.getElementById('fechaInicioDocente')?.value || '';
+        const fechaFin = document.getElementById('fechaFinDocente')?.value || '';
+
+        // Corregir la URL para que coincida con tu estructura de rutas
+        const response = await fetch('/drive_ucv/docentes/filtrar', {  // Ajusta esta URL según tu configuración
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                busqueda,
+                estado,
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            const tbody = document.querySelector('#tabla-docentes tbody') || document.getElementById('tabla-docentes');
+            if (!tbody) return;
+
+            tbody.innerHTML = result.data.map(docente => `
+                <tr data-user-id="${docente.id_usuario}">
+                    <td class="px-6 py-4">${docente.nombres || ''}</td>
+                    <td class="px-6 py-4">${docente.apellidos || ''}</td>
+                    <td class="px-6 py-4">${docente.codigo || ''}</td>
+                    <td class="px-6 py-4">${docente.email || ''}</td>
+                    <td class="px-6 py-4">${docente.celular || ''}</td>
+                    <td class="px-6 py-4">${docente.username || ''}</td>
+                    <td class="px-6 py-4">${docente.secciones_asignadas || 'Sin asignaciones'}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox"
+                                       class="sr-only peer"
+                                       ${docente.status == 1 ? 'checked' : ''}
+                                       onchange="cambiarEstado('docentes', ${docente.id_usuario}, this.checked)">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <span class="ml-3 text-sm font-medium status-text ${docente.status == 1 ? 'text-green-600' : 'text-red-600'}">
+                                    ${docente.status == 1 ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </label>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">${docente.fecha_actualizacion || ''}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="editarDocente(${docente.id_usuario})"
+                                class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            throw new Error(result.message || 'Error al filtrar docentes');
+        }
+    } catch (error) {
+        console.error('Error al filtrar docentes:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al filtrar docentes: ' + error.message
+        });
+    }
+}
+
+// Event listeners con debounce
+document.addEventListener('DOMContentLoaded', function() {
+    const searchDocente = document.getElementById('searchDocente');
+    const filterEstadoDocente = document.getElementById('filterEstadoDocente');
+    const fechaInicioDocente = document.getElementById('fechaInicioDocente');
+    const fechaFinDocente = document.getElementById('fechaFinDocente');
+
+    let timeoutId;
+    const debounceFilter = () => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(filtrarDocentes, 300);
+    };
+
+    // Aplicar event listeners con debounce
+    searchDocente?.addEventListener('input', debounceFilter);
+    filterEstadoDocente?.addEventListener('change', filtrarDocentes);
+    fechaInicioDocente?.addEventListener('change', filtrarDocentes);
+    fechaFinDocente?.addEventListener('change', filtrarDocentes);
+
+    // Cargar datos iniciales
+    filtrarDocentes();
+});
+
+async function cambiarEstadoDocente(id, estado) {
+    try {
+        const response = await fetch(`/drive_ucv/docentes/estado/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                status: estado ? 1 : 0
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const statusText = estado ? 'Activo' : 'Inactivo';
+            const statusElement = document.querySelector(`#estado-${id}`).parentElement.nextElementSibling;
+            if (statusElement) {
+                statusElement.textContent = statusText;
+            }
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al cambiar el estado del docente'
+        });
+        // Revertir el cambio en el toggle
+        const checkbox = document.querySelector(`#estado-${id}`);
+        if (checkbox) {
+            checkbox.checked = !estado;
+        }
     }
 }
 </script>

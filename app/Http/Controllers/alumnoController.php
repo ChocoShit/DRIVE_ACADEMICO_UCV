@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
+
 class AlumnoController extends Controller
 {
     public function listarAlumnos()
@@ -54,10 +55,16 @@ class AlumnoController extends Controller
     public function crearAlumno(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $request->validate([
                 'nombres' => 'required|string|max:100',
                 'apellidos' => 'required|string|max:100',
-                'codigo' => [ 'required','string','regex:/^\d{10}$/','unique:datos_persona,codigo,' . $request->id_usuario . ',id_usuario'],
+                'codigo' => [
+                    'required',
+                    'string',
+                    'size:10',
+                    'unique:datos_persona,codigo',
+                    'regex:/^\d{10}$/'
+                ],
                 'ciclo' => 'required|string|max:2',
                 'email' => [
                     'required',
@@ -99,12 +106,6 @@ class AlumnoController extends Controller
                 'username.unique' => 'Este nombre de usuario ya está registrado',
             ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
 
             // Iniciar transacción
             DB::beginTransaction();
@@ -132,6 +133,12 @@ class AlumnoController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error al crear alumno: ' . $e->getMessage());
+            if (strpos($e->getMessage(), 'datos_persona.codigo_UNIQUE') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El código ingresado ya está registrado en el sistema'
+                ], 422);
+            }
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el alumno: ' . $e->getMessage()
@@ -297,26 +304,27 @@ class AlumnoController extends Controller
                 'codigo' => [
                     'required',
                     'string',
-                    'size:10',  // Exactamente 10 caracteres
-                    'regex:/^\d{10}$/' // Solo dígitos
-                ], // Validación específica para código de 10 dígitos
+                    'size:10',
+                    'unique:datos_persona,codigo,'.$id.',id_usuario',
+                    'regex:/^\d{10}$/'
+                ],
                 'email' => [
                     'required',
                     'email',
                     'max:100',
-                    'regex:/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/' // Solo correos institucionales
+                    'regex:/^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/'
                 ],
                 'celular' => [
                     'nullable',
-                    'regex:/^9\d{8}$/' // Debe empezar con 9 y tener 9 dígitos
+                    'regex:/^9\d{8}$/'
                 ],
                 'ciclo' => 'required|string|max:2',
                 'username' => 'required|string|min:4|max:50',
                 'codigo.size' => 'El código debe tener exactamente 10 dígitos',
-            'codigo.regex' => 'El código debe contener solo números',
-            'email.regex' => 'Debe usar su correo institucional (@ucvvirtual.edu.pe)',
-            'celular.regex' => 'El número de celular debe empezar con 9 y tener 9 dígitos'
-        ]);
+                'codigo.regex' => 'El código debe contener solo números',
+                'email.regex' => 'Debe usar su correo institucional (@ucvvirtual.edu.pe)',
+                'celular.regex' => 'El número de celular debe empezar con 9 y tener 9 dígitos'
+            ]);
 
 
             $result = DB::select('CALL sp_editar_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
