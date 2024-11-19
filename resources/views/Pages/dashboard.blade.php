@@ -363,7 +363,7 @@ DRIVE UCV
                 </div>
             </section>
 
-            <!-- Sección de Gestión de Secciones -->
+<!--------------------------------------- Sección de Gestión de Secciones -------------------------------------->
             <section id="secciones-section" class="section-content hidden">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex justify-between items-center mb-6">
@@ -374,7 +374,7 @@ DRIVE UCV
                         </button>
                     </div>
 
-                    <!-- Filtros -->
+<!---------------------------------------- Filtros ------------------------------------------>
                     <div class="mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -390,8 +390,8 @@ DRIVE UCV
                                 <select id="filtro-ciclo" onchange="filtrarSecciones()"
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                     <option value="">Todos los ciclos</option>
-                                    <option value="IX">Ciclo IX</option>
-                                    <option value="X">Ciclo X</option>
+                                    <option value="IX">IX</option>
+                                    <option value="X">X</option>
                                 </select>
                             </div>
                             <div>
@@ -406,7 +406,7 @@ DRIVE UCV
                         </div>
                     </div>
 
-                    <!-- Tabla de Secciones -->
+<!---------------------------------------- Tabla de Secciones ------------------------------------------>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white">
                             <thead class="bg-gray-100">
@@ -437,7 +437,6 @@ DRIVE UCV
                             </button>
                         </div>
                         <form id="form-seccion" onsubmit="guardarSeccion(event)">
-                            <input type="hidden" id="seccion-id" name="id_seccion">
                             <div class="space-y-4">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
@@ -457,9 +456,7 @@ DRIVE UCV
                                     <label class="block text-sm font-medium text-gray-700">Docente(s)</label>
                                     <select name="docentes[]" multiple required
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <!-- Se llenará dinámicamente -->
                                     </select>
-                                    <p class="mt-1 text-sm text-gray-500">Puede seleccionar múltiples docentes manteniendo presionada la tecla Ctrl</p>
                                 </div>
                             </div>
                             <div class="mt-6 flex justify-end space-x-3">
@@ -661,39 +658,26 @@ DRIVE UCV
  <!-------------------------------------------------------- scripts --------------------------------------------------------------------->
 @section('script')
 <script>
+////////////////////////////////////////// document ready //////////////////////////////////////////
 $(document).ready(function() {
-    // Recuperar la última sección activa del localStorage
     const ultimaSeccion = localStorage.getItem('seccionActiva') || 'resumen';
-
-    // Activar la última sección vista
     activarSeccion(ultimaSeccion);
 
-    // Manejo del menú de navegación
     $('.nav-link').click(function(e) {
         e.preventDefault();
         const sectionId = $(this).data('section');
         activarSeccion(sectionId);
-
-        // Guardar la sección activa en localStorage
         localStorage.setItem('seccionActiva', sectionId);
     });
 
-    // Manejo del menú de perfil
-    $('#profile-menu-button').click(function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Click en menú de perfil');
-        $('#profile-dropdown').toggleClass('hidden');
-    });
-
-    // Cerrar menú de perfil al hacer click fuera
+////////////////////////////////////////// cerrar menú de perfil //////////////////////////////////////////
     $(document).click(function(e) {
         if (!$(e.target).closest('#profile-dropdown').length) {
             $('#profile-dropdown').addClass('hidden');
         }
     });
 
-    // Función para mostrar perfil
+////////////////////////////////////////// mostrar perfil //////////////////////////////////////////
     window.mostrarPerfil = async function() {
         try {
             const response = await fetch('/api/usuario/perfil', {
@@ -715,7 +699,7 @@ $(document).ready(function() {
             if (result.success) {
                 const datos = result.data;
 
-                // Usar SweetAlert2 para mostrar el perfil
+
                 Swal.fire({
                     title: 'Mi Perfil',
                     html: `
@@ -760,31 +744,19 @@ $(document).ready(function() {
             });
         }
     };
-
-    // Función para cerrar modal de perfil
     window.cerrarModalPerfil = function() {
         $('#modal-perfil').addClass('hidden');
     };
 
-    // Mostrar sección inicial (resumen)
     $('#resumen-section').removeClass('hidden');
 });
 
-// Función para activar una sección específica
+////////////////////////////////////////// activar una sección específica //////////////////////////////////////////
 function activarSeccion(sectionId) {
-    // Remover active de todos los enlaces
     $('.nav-link').removeClass('active bg-gray-700');
-
-    // Agregar active al enlace correspondiente
     $(`[data-section="${sectionId}"]`).addClass('active bg-gray-700');
-
-    // Ocultar todas las secciones
     $('.section-content').addClass('hidden');
-
-    // Mostrar la sección seleccionada
     $(`#${sectionId}-section`).removeClass('hidden');
-
-    // Cargar datos según la sección
     switch(sectionId) {
         case 'alumnos':
             cargarAlumnos();
@@ -799,18 +771,17 @@ function activarSeccion(sectionId) {
     }
 }
 
-// Funciones para gestión de alumnos
+////////////////////////////////////////// gestión de alumnos //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar eventos cuando el documento esté listo
     const alumnosLink = document.querySelector('[data-section="alumnos"]');
     if (alumnosLink) {
         alumnosLink.addEventListener('click', function() {
-            setTimeout(cargarAlumnos, 100); // Pequeño retraso para asegurar que la sección esté visible
+            setTimeout(cargarAlumnos, 100);
         });
     }
 });
 
-// Función para cargar la lista de alumnos
+////////////////////////////////////////// cargar la lista de alumnos //////////////////////////////////////////
 async function cargarAlumnos() {
     try {
         const response = await fetch('/drive_ucv/alumnos/listar', {
@@ -887,6 +858,8 @@ async function cargarAlumnos() {
         });
     }
 }
+
+////////////////////////////////////////// validar el formulario del alumno //////////////////////////////////////////
 function validarFormularioAlumno(form) {
     const codigo = form.querySelector('[name="codigo"]').value.trim();
     const email = form.querySelector('[name="email"]').value.trim();
@@ -915,7 +888,6 @@ function validarFormularioAlumno(form) {
     if (username.length < 4) {
         throw new Error('El nombre de usuario debe tener al menos 4 caracteres');
     }
-    // Validar contraseña
     if (!password) {
         throw new Error('La contraseña es obligatoria');
     }
@@ -923,16 +895,12 @@ function validarFormularioAlumno(form) {
         throw new Error('La contraseña debe tener al menos 6 caracteres');
     }
 }
-// Función para mostrar el modal de crear alumno
+////////////////////////////////////////// mostrar el modal de crear alumno //////////////////////////////////////////
 function mostrarModalCrearAlumno() {
     const form = document.getElementById('form-alumno');
     const modalTitulo = document.getElementById('modal-titulo');
-
-    // Resetear el formulario
     form.reset();
     delete form.dataset.editId;
-
-    // Mostrar y habilitar el campo de contraseña para crear
     const passwordField = form.querySelector('[name="password"]');
     const passwordContainer = passwordField?.closest('.form-group') || form.querySelector('#password-container');
     if (passwordContainer) {
@@ -942,15 +910,11 @@ function mostrarModalCrearAlumno() {
             passwordField.disabled = false;
         }
     }
-
-    // Cambiar título
     modalTitulo.textContent = 'Nuevo Alumno';
-
-    // Mostrar modal
     document.getElementById('modal-alumno').classList.remove('hidden');
 }
 
-// Función para cerrar el modal
+////////////////////////////////////////// cerrar el modal //////////////////////////////////////////
 function cerrarModalAlumno() {
     const modalAlumno = document.getElementById('modal-alumno');
     const formAlumno = document.getElementById('form-alumno');
@@ -981,10 +945,10 @@ function cerrarModalAlumno() {
         }
     }
 }
+
 document.addEventListener('DOMContentLoaded', function() {
     const modalAlumno = document.getElementById('modal-alumno');
     if (modalAlumno) {
-        // Prevenir cierre al hacer click dentro del contenido del modal
         const modalContent = modalAlumno.querySelector('.relative');
         if (modalContent) {
             modalContent.addEventListener('click', function(e) {
@@ -995,9 +959,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-    // Opcional: Agregar clase para animación de fade
 setTimeout(() => {
-    const modal = document.getElementById('modal-alumno'); // o el ID que corresponda
+    const modal = document.getElementById('modal-alumno');
     if (modal) {
         modal.classList.add('show');
     }
@@ -1013,12 +976,8 @@ async function guardarAlumno(event) {
         const form = event.target;
         const formData = new FormData(form);
         const editId = form.dataset.editId;
-
-        // Validación del email primero
         const email = formData.get('email');
         const emailPattern = /^[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$/;
-
-        // Validación del correo antes de cualquier petición
         if (!email.match(emailPattern)) {
             Swal.fire({
                 icon: 'warning',
@@ -1026,11 +985,10 @@ async function guardarAlumno(event) {
                 text: 'El correo debe ser institucional (@ucvvirtual.edu.pe)',
                 confirmButtonText: 'Entendido'
             });
-            return false; // Detener la ejecución si el email no es válido
+            return false;
             return;
         }
 
-        // Preparar datos asegurando el formato correcto
         const data = {
             nombres: formData.get('nombres'),
             apellidos: formData.get('apellidos'),
@@ -1097,7 +1055,7 @@ async function guardarAlumno(event) {
     }
 }
 
-// Función para cambiar el estado
+////////////////////////////////////////// cambiar el estado //////////////////////////////////////////
 async function cambiarEstado(tipo, id, nuevoEstado) {
     try {
         console.log('Cambiando estado:', { tipo, id, nuevoEstado });
@@ -1116,7 +1074,6 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
         const result = await response.json();
 
         if (result.success) {
-            // Actualizar el DOM
             const row = document.querySelector(`tr[data-user-id="${id}"]`);
             if (row) {
                 const toggleInput = row.querySelector('input[type="checkbox"]');
@@ -1134,8 +1091,6 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
                 showConfirmButton: false,
                 timer: 1500
             });
-
-            // Mantener la sección actual
             const seccionActual = localStorage.getItem('seccionActiva');
             activarSeccion(seccionActual);
         } else {
@@ -1143,8 +1098,6 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
         }
     } catch (error) {
         console.error('Error:', error);
-
-        // Revertir el cambio en la UI
         const row = document.querySelector(`tr[data-user-id="${id}"]`);
         if (row) {
             const toggleInput = row.querySelector('input[type="checkbox"]');
@@ -1163,7 +1116,7 @@ async function cambiarEstado(tipo, id, nuevoEstado) {
     }
 }
 
-// Función para editar alumno
+////////////////////////////////////////// editar alumno //////////////////////////////////////////
 async function editarAlumno(id) {
     try {
         console.log('Editando alumno:', id);
@@ -1186,8 +1139,6 @@ async function editarAlumno(id) {
             const alumno = result.data;
             const form = document.getElementById('form-alumno');
             const modalTitulo = document.getElementById('modal-titulo');
-
-            // Ocultar y deshabilitar el campo de contraseña
             const passwordField = form.querySelector('[name="password"]');
             const passwordContainer = passwordField?.closest('.form-group') || form.querySelector('#password-container');
             if (passwordContainer) {
@@ -1198,7 +1149,6 @@ async function editarAlumno(id) {
                 }
             }
 
-            // Llenar el formulario con los datos existentes
             form.querySelector('[name="nombres"]').value = alumno.nombres;
             form.querySelector('[name="apellidos"]').value = alumno.apellidos;
             form.querySelector('[name="codigo"]').value = alumno.codigo;
@@ -1207,11 +1157,8 @@ async function editarAlumno(id) {
             form.querySelector('[name="username"]').value = alumno.username;
             form.querySelector('[name="ciclo"]').value = alumno.ciclo;
 
-            // Cambiar título y guardar ID para la edición
             modalTitulo.textContent = 'Editar Alumno';
             form.dataset.editId = id;
-
-            // Mostrar modal
             document.getElementById('modal-alumno').classList.remove('hidden');
         } else {
             throw new Error(result.message || 'No se pudo cargar la información del alumno');
@@ -1267,6 +1214,7 @@ async function filtrarAlumnos() {
     }
 }
 
+////////////////////////////////////////// actualizar tabla alumnos //////////////////////////////////////////
 function actualizarTablaAlumnos(alumnos) {
     const tbody = document.getElementById('tabla-alumnos');
     if (!tbody) return;
@@ -1305,9 +1253,8 @@ function actualizarTablaAlumnos(alumnos) {
     `).join('');
 }
 
-// Event listeners para los filtros
+////////////////////////////////////////// Event listeners para los filtros //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
-    // Búsqueda con debounce
     const searchAlumno = document.getElementById('searchAlumno');
     let timeoutId;
     if (searchAlumno) {
@@ -1316,8 +1263,6 @@ document.addEventListener('DOMContentLoaded', function() {
             timeoutId = setTimeout(filtrarAlumnos, 300);
         });
     }
-
-    // Otros filtros
     const filterCiclo = document.getElementById('filterCiclo');
     const filterEstadoAlumno = document.getElementById('filterEstadoAlumno');
     const fechaInicioAlumno = document.getElementById('fechaInicioAlumno');
@@ -1332,11 +1277,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // Variables globales
 let cursoSeleccionadoId = null;
 
-// Función única para cargar cursos
-async function cargarCursos() {
+////////////////////////////////////////// Función única para cargar cursos //////////////////////////////////////////
+/*async function cargarCursos() {
     try {
         console.log('Iniciando carga de cursos');
-        const response = await fetch('/drive_ucv/cursos/listar', {
+        const response = await fetch('/cursos/listar', {
             headers: {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -1351,11 +1296,8 @@ async function cargarCursos() {
         console.log('Respuesta de cursos:', result);
 
         if (result.success) {
-            // Llenar el select de filtro
             const filtroCurso = document.querySelector('select[name="filtro_curso"]');
-            // Llenar el select del modal
             const selectCursoModal = document.querySelector('select[name="id_curso"]');
-
             const opcionesHTML = `
                 <option value="">Todos los cursos</option>
                 ${result.data.map(curso => `
@@ -1385,13 +1327,13 @@ async function cargarCursos() {
             text: 'No se pudieron cargar los cursos: ' + error.message
         });
     }
-}
+}*/
 
-// Event Listeners
+////////////////////////////////////////// Event Listeners //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Cargado - Inicializando eventos');
 
-    // Cargar cursos al entrar a la sección de secciones
+////////////////////////////////////////// Cargar cursos al entrar a la sección de secciones //////////////////////////////////////////
     const seccionesLink = document.querySelector('[data-section="secciones"]');
     if (seccionesLink) {
         seccionesLink.addEventListener('click', async () => {
@@ -1401,7 +1343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Cargar cursos al abrir el modal de nueva sección
+////////////////////////////////////////// Cargar cursos al abrir el modal de nueva sección //////////////////////////////////////////
     const btnNuevaSeccion = document.querySelector('.btn-nueva-seccion');
     if (btnNuevaSeccion) {
         btnNuevaSeccion.addEventListener('click', async () => {
@@ -1411,7 +1353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Cargar datos iniciales si estamos en la sección de secciones
     if (window.location.hash === '#secciones') {
         console.log('Carga inicial de secciones');
         cargarCursos();
@@ -1428,7 +1369,7 @@ async function seleccionarCurso(idCurso, nombreCurso) {
     await cargarSecciones(idCurso);
 }
 
-// Función para cargar las secciones de un curso
+////////////////////////////////////////// cargar secciones de un curso //////////////////////////////////////////
 async function cargarSecciones(idCurso) {
     try {
         const response = await fetch(`/drive_ucv/secciones/curso/${idCurso}`);
@@ -1477,14 +1418,12 @@ async function cargarSecciones(idCurso) {
 // Variables globales
 let editandoSeccionId = null;
 
-// Cargar datos iniciales al entrar a la sección
 document.addEventListener('DOMContentLoaded', function() {
     const seccionesLink = document.querySelector('[data-section="secciones"]');
     if (seccionesLink) {
         seccionesLink.addEventListener('click', async function() {
             await cargarCursos();
             await cargarSecciones();
-            // Preparar el modal
             const modalSeccion = document.getElementById('modal-seccion');
             if (!modalSeccion._initialized) {
                 modalSeccion._initialized = true;
@@ -1493,7 +1432,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Función para cargar los cursos en los filtros y el formulario
+////////////////////////////////////////// Filtro cargar cursos //////////////////////////////////////////
 async function cargarCursos() {
     try {
         const response = await fetch('/drive_ucv/cursos/listar');
@@ -1504,11 +1443,8 @@ async function cargarCursos() {
             const selectCurso = document.querySelector('select[name="id_curso"]');
             const cursos = result.data;
 
-            // Llenar filtro de cursos
             filtroCurso.innerHTML = '<option value="">Todos los cursos</option>';
-            // Llenar select del formulario
             selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
-
             cursos.forEach(curso => {
                 filtroCurso.innerHTML += `
                     <option value="${curso.id_curso}">${curso.nombre_curso} (Ciclo ${curso.ciclo})</option>
@@ -1524,7 +1460,7 @@ async function cargarCursos() {
     }
 }
 
-// Función para cargar las secciones
+////////////////////////////////////////// cargar secciones //////////////////////////////////////////
 async function cargarSecciones() {
     try {
         const response = await fetch('/drive_ucv/secciones/listar', {
@@ -1556,7 +1492,7 @@ async function cargarSecciones() {
     }
 }
 
-// Función para mostrar el modal de crear sección
+////////////////////////////////////////// mostrar modal crear sección //////////////////////////////////////////
 function mostrarModalCrearSeccion() {
     editandoSeccionId = null;
     const form = document.getElementById('form-seccion');
@@ -1566,13 +1502,13 @@ function mostrarModalCrearSeccion() {
     cargarDocentesDisponibles();
 }
 
-// Función para cerrar el modal
+
 function cerrarModalSeccion() {
     document.getElementById('modal-seccion').classList.add('hidden');
     document.getElementById('form-seccion').reset();
 }
 
-// Función para cargar docentes disponibles
+////////////////////////////////////////// cargar docentes disponibles //////////////////////////////////////////
 async function cargarDocentesDisponibles() {
     try {
         const response = await fetch('/drive_ucv/secciones/docentes');
@@ -1594,61 +1530,70 @@ async function cargarDocentesDisponibles() {
     }
 }
 
-// Función para guardar la sección
+////////////////////////////////////////// guardar sección //////////////////////////////////////////
 async function guardarSeccion(event) {
     event.preventDefault();
 
     try {
-        const form = event.target;
-        const formData = new FormData(form);
+        const form = document.getElementById('form-seccion');
 
-        // Convertir FormData a objeto
+        // Obtener los valores directamente de los elementos
+        const idCurso = form.querySelector('[name="id_curso"]').value;
+        const nombreSeccion = form.querySelector('[name="nombre_seccion"]').value.trim();
+        const docentes = Array.from(form.querySelector('[name="docentes[]"]').selectedOptions)
+                              .map(option => parseInt(option.value));
+
+        // Validar que tengamos todos los datos necesarios
+        if (!idCurso || !nombreSeccion || docentes.length === 0) {
+            throw new Error('Por favor complete todos los campos requeridos');
+        }
+
         const data = {
-            nombre_seccion: formData.get('nombre_seccion'),
-            id_curso: formData.get('id_curso'),
-            docentes: Array.from(formData.getAll('docentes[]'))
+            id_curso: parseInt(idCurso),
+            nombre_seccion: nombreSeccion,
+            docentes: docentes
         };
 
-        const url = editandoSeccionId
-            ? `/drive_ucv/secciones/actualizar/${editandoSeccionId}`
-            : '/drive_ucv/secciones/crear';
-
-        const response = await fetch(url, {
-            method: editandoSeccionId ? 'PUT' : 'POST',
+        console.log('Datos a enviar:', data);
+        const response = await fetch('/drive_ucv/secciones/crear', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
             },
             body: JSON.stringify(data)
         });
 
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `Error HTTP: ${response.status}`);
+        }
+
         const result = await response.json();
 
         if (result.success) {
-            await Swal.fire({
+            Swal.fire({
                 icon: 'success',
                 title: 'Éxito',
-                text: editandoSeccionId ? 'Sección actualizada correctamente' : 'Sección creada correctamente',
-                timer: 1500,
-                showConfirmButton: false
+                text: 'Sección creada correctamente'
             });
-
             cerrarModalSeccion();
-            activarSeccion('secciones');
+            await cargarSecciones();
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || 'Error al crear la sección');
         }
+
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al guardar sección:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'No se pudo guardar la sección: ' + error.message
+            text: error.message
         });
     }
 }
 
-// Función para mostrar errores
 function mostrarError(mensaje) {
     Swal.fire({
         icon: 'error',
@@ -1657,7 +1602,47 @@ function mostrarError(mensaje) {
     });
 }
 
-// Cargar docentes////////////////////////////////////////////////////
+////////////////////////////////////////// cambiar estado seccion //////////////////////////////////////////
+async function cambiarEstadoSeccion(idSeccion, nuevoEstado) {
+    try {
+        const response = await fetch(`/drive_ucv/secciones/estado/${idSeccion}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: nuevoEstado })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Estado de la sección actualizado correctamente'
+            });
+            // Recargar la lista de secciones
+            await cargarSecciones();
+        } else {
+            throw new Error(result.message || 'Error al actualizar el estado');
+        }
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el estado de la sección: ' + error.message
+        });
+    }
+}
+
+////////////////////////////////////////// cargar docentes //////////////////////////////////////////
 async function cargarDocentes() {
     try {
         const response = await fetch('/drive_ucv/docentes/listar');
@@ -1720,7 +1705,6 @@ async function cargarDocentes() {
     }
 }
 
-// Asegurarse de que la función se llame cuando se muestra la sección
 document.addEventListener('DOMContentLoaded', function() {
     const docentesLink = document.querySelector('[data-section="docentes"]');
     if (docentesLink) {
@@ -1741,7 +1725,6 @@ async function editarDocente(id) {
             const form = document.getElementById('form-docente');
             const modalTitulo = document.getElementById('modal-docente-titulo');
 
-            // Asignar valores a los campos
             document.getElementById('docente-nombres').value = docente.nombres || '';
             document.getElementById('docente-apellidos').value = docente.apellidos || '';
             document.getElementById('docente-codigo').value = docente.codigo || '';
@@ -1749,7 +1732,6 @@ async function editarDocente(id) {
             document.getElementById('docente-celular').value = docente.celular || '';
             document.getElementById('docente-username').value = docente.username || '';
 
-            // Ocultar y deshabilitar el campo de contraseña
             const passwordContainer = document.getElementById('password-container-docente');
             if (passwordContainer) {
                 passwordContainer.style.display = 'none';
@@ -1760,11 +1742,11 @@ async function editarDocente(id) {
                 }
             }
 
-            // Cambiar título y guardar ID para la edición
+
             modalTitulo.textContent = 'Editar Docente';
             form.dataset.editId = id;
 
-            // Mostrar modal
+
             document.getElementById('modal-docente').classList.remove('hidden');
         } else {
             throw new Error(result.message || 'No se pudo cargar la información del docente');
@@ -1779,7 +1761,7 @@ async function editarDocente(id) {
     }
 }
 
-// Función para guardar docente
+////////////////////////////////////////// guardar docente //////////////////////////////////////////
 async function guardarDocente(event) {
     event.preventDefault();
 
@@ -1787,8 +1769,6 @@ async function guardarDocente(event) {
         const form = event.target;
         const formData = new FormData(form);
         const editId = form.dataset.editId;
-
-        // Validaciones específicas
         const codigo = formData.get('codigo');
         if (!/^\d{10}$/.test(codigo)) {
             await Swal.fire({
@@ -1800,17 +1780,15 @@ async function guardarDocente(event) {
             return;
         }
 
-        // Preparar datos
         const data = {
             nombres: formData.get('nombres'),
             apellidos: formData.get('apellidos'),
-            codigo: codigo.padStart(10, '0'), // Asegurar 10 dígitos
+            codigo: codigo.padStart(10, '0'),
             email: formData.get('email'),
             celular: formData.get('celular') ? formData.get('celular').padStart(9, '0') : null,
             username: formData.get('username')
         };
 
-        // Agregar password solo si es necesario
         if (!editId || formData.get('password')) {
             data.password = formData.get('password');
         }
@@ -1867,7 +1845,7 @@ async function guardarDocente(event) {
     }
 }
 
-// Inicializar eventos cuando el documento esté listo
+////////////////////////////////////////// inicializar eventos //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     const formDocente = document.getElementById('form-docente');
     if (formDocente) {
@@ -1878,7 +1856,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Función para guardar datos temporales del docente
+////////////////////////////////////////// guardar datos temporales docente //////////////////////////////////////////
 function guardarDatosTemporalesDocente(event) {
     const input = event.target;
     const formData = JSON.parse(localStorage.getItem('formDocenteTemp') || '{}');
@@ -1886,16 +1864,14 @@ function guardarDatosTemporalesDocente(event) {
     localStorage.setItem('formDocenteTemp', JSON.stringify(formData));
 }
 
-// Función para mostrar el modal de crear docente
+////////////////////////////////////////// mostrar modal crear docente //////////////////////////////////////////
 function mostrarModalCrearDocente() {
     const form = document.getElementById('form-docente');
     const modalTitulo = document.getElementById('modal-docente-titulo');
 
-    // Resetear el formulario
     form.reset();
     delete form.dataset.editId;
 
-    // Mostrar y habilitar el campo de contraseña para crear
     const passwordField = document.getElementById('docente-password');
     const passwordContainer = document.getElementById('password-container-docente');
     if (passwordContainer) {
@@ -1906,14 +1882,11 @@ function mostrarModalCrearDocente() {
         }
     }
 
-    // Cambiar título
     modalTitulo.textContent = 'Nuevo Docente';
-
-    // Mostrar modal
     document.getElementById('modal-docente').classList.remove('hidden');
 }
 
-// Función para cerrar el modal de docente
+////////////////////////////////////////// cerrar modal docente //////////////////////////////////////////
 function cerrarModalDocente() {
     const modalDocente = document.getElementById('modal-docente');
     const formDocente = document.getElementById('form-docente');
@@ -1945,56 +1918,7 @@ function cerrarModalDocente() {
     }
 }
 
-// Función para editar docente
-async function editarDocente(id) {
-    try {
-        const response = await fetch(`/drive_ucv/docentes/${id}`);
-        const result = await response.json();
-
-        if (result.success) {
-            const docente = result.data;
-            const form = document.getElementById('form-docente');
-            const modalTitulo = document.getElementById('modal-docente-titulo');
-
-            // Asignar valores a los campos
-            document.getElementById('docente-nombres').value = docente.nombres || '';
-            document.getElementById('docente-apellidos').value = docente.apellidos || '';
-            document.getElementById('docente-codigo').value = docente.codigo || '';
-            document.getElementById('docente-email').value = docente.email || '';
-            document.getElementById('docente-celular').value = docente.celular || '';
-            document.getElementById('docente-username').value = docente.username || '';
-
-            // Ocultar y deshabilitar el campo de contraseña
-            const passwordContainer = document.getElementById('password-container-docente');
-            if (passwordContainer) {
-                passwordContainer.style.display = 'none';
-                const passwordInput = document.getElementById('docente-password');
-                if (passwordInput) {
-                    passwordInput.removeAttribute('required');
-                    passwordInput.disabled = true;
-                }
-            }
-
-            // Cambiar título y guardar ID para la edición
-            modalTitulo.textContent = 'Editar Docente';
-            form.dataset.editId = id;
-
-            // Mostrar modal
-            document.getElementById('modal-docente').classList.remove('hidden');
-        } else {
-            throw new Error(result.message || 'No se pudo cargar la información del docente');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'No se pudo cargar la información del docente'
-        });
-    }
-}
-
-// Validación en tiempo real para el email
+////////////////////////////////////////// validar email institucional //////////////////////////////////////////
 function validarEmailInstitucional(input) {
     const messageSpan = input.nextElementSibling;
     const email = input.value.trim();
@@ -2015,7 +1939,7 @@ function validarEmailInstitucional(input) {
     }
 }
 
-///////////////////////////////////////////////777 Función para validar si el usuario es disponible////////////////////////////////////////////////////////////
+////////////////////////////////////////// validar si el usuario es disponible //////////////////////////////////////////
 let timeoutId = null;
 async function validarUsuarioDisponible(username) {
     try {
@@ -2049,7 +1973,7 @@ async function validarUsuarioDisponible(username) {
     }
 }
 
-// Función para validar el formulario del docente
+////////////////////////////////////////// validar formulario docente //////////////////////////////////////////
 function validarFormularioDocente(form) {
     const codigo = form.querySelector('[name="codigo"]').value.trim();
     const email = form.querySelector('[name="email"]').value.trim();
@@ -2078,7 +2002,6 @@ function validarFormularioDocente(form) {
     if (username.length < 4) {
         throw new Error('El nombre de usuario debe tener al menos 4 caracteres');
     }
-    // Validar contraseña solo si es nuevo registro o si se ha ingresado una nueva
     if (!form.dataset.editId && !password) {
         throw new Error('La contraseña es obligatoria');
     }
@@ -2087,7 +2010,7 @@ function validarFormularioDocente(form) {
     }
 }
 
-// Función para validar código
+////////////////////////////////////////// validar código //////////////////////////////////////////
 function validarCodigo(input) {
     const messageSpan = input.nextElementSibling;
     const codigo = input.value.trim();
@@ -2109,7 +2032,7 @@ function validarCodigo(input) {
     return true;
 }
 
-// Función para validar celular
+////////////////////////////////////////// validar celular //////////////////////////////////////////
 function validarCelular(input) {
     const messageSpan = input.nextElementSibling;
     const celular = input.value.trim();
@@ -2131,7 +2054,7 @@ function validarCelular(input) {
     return true;
 }
 
-// Función para filtrar docentes
+////////////////////////////////////////// filtrar docentes //////////////////////////////////////////
 async function filtrarDocentes() {
     try {
         const busqueda = document.getElementById('searchDocente')?.value || '';
@@ -2139,8 +2062,7 @@ async function filtrarDocentes() {
         const fechaInicio = document.getElementById('fechaInicioDocente')?.value || '';
         const fechaFin = document.getElementById('fechaFinDocente')?.value || '';
 
-        // Corregir la URL para que coincida con tu estructura de rutas
-        const response = await fetch('/drive_ucv/docentes/filtrar', {  // Ajusta esta URL según tu configuración
+        const response = await fetch('/drive_ucv/docentes/filtrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2209,7 +2131,7 @@ async function filtrarDocentes() {
     }
 }
 
-// Event listeners con debounce
+////////////////////////////////////////// event listeners con debounce //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     const searchDocente = document.getElementById('searchDocente');
     const filterEstadoDocente = document.getElementById('filterEstadoDocente');
@@ -2222,16 +2144,15 @@ document.addEventListener('DOMContentLoaded', function() {
         timeoutId = setTimeout(filtrarDocentes, 300);
     };
 
-    // Aplicar event listeners con debounce
     searchDocente?.addEventListener('input', debounceFilter);
     filterEstadoDocente?.addEventListener('change', filtrarDocentes);
     fechaInicioDocente?.addEventListener('change', filtrarDocentes);
     fechaFinDocente?.addEventListener('change', filtrarDocentes);
 
-    // Cargar datos iniciales
     filtrarDocentes();
 });
 
+////////////////////////////////////////// cambiar estado docente //////////////////////////////////////////
 async function cambiarEstadoDocente(id, estado) {
     try {
         const response = await fetch(`/drive_ucv/docentes/estado/${id}`, {
@@ -2263,7 +2184,6 @@ async function cambiarEstadoDocente(id, estado) {
             title: 'Error',
             text: 'Error al cambiar el estado del docente'
         });
-        // Revertir el cambio en el toggle
         const checkbox = document.querySelector(`#estado-${id}`);
         if (checkbox) {
             checkbox.checked = !estado;
@@ -2271,18 +2191,27 @@ async function cambiarEstadoDocente(id, estado) {
     }
 }
 
-// Función para filtrar secciones
+////////////////////////////////////////// filtrar secciones //////////////////////////////////////////
 async function filtrarSecciones() {
     try {
-        const cursoId = document.querySelector('select[name="filtro_curso"]').value;
-        const ciclo = document.querySelector('select[name="filtro_ciclo"]').value;
-        const estado = document.querySelector('select[name="filtro_estado"]').value;
+        const filtroCurso = document.getElementById('filtro-curso');
+        const filtroCiclo = document.getElementById('filtro-ciclo');
+        const filtroEstado = document.getElementById('filtro-estado');
 
+        const cursoId = filtroCurso ? filtroCurso.value : '';
+        // Extraer solo IX o X del valor del ciclo
+        const ciclo = filtroCiclo ? filtroCiclo.value.replace('Ciclo ', '') : '';
+        const estado = filtroEstado ? filtroEstado.value : '';
+
+        console.log('Filtrando con valores:', { cursoId, ciclo, estado });
+
+        // Ajustar la URL para incluir el prefijo correcto
         const response = await fetch('/drive_ucv/secciones/filtrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 curso_id: cursoId,
@@ -2290,6 +2219,10 @@ async function filtrarSecciones() {
                 estado: estado
             })
         });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
 
         const result = await response.json();
 
@@ -2299,7 +2232,7 @@ async function filtrarSecciones() {
             throw new Error(result.message || 'Error al filtrar secciones');
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al filtrar secciones:', error);
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -2308,7 +2241,7 @@ async function filtrarSecciones() {
     }
 }
 
-// Función auxiliar para actualizar la tabla de secciones
+////////////////////////////////////////// actualizar tabla secciones //////////////////////////////////////////
 function actualizarTablaSecciones(secciones) {
     const tablaSecciones = document.getElementById('tabla-secciones');
     tablaSecciones.innerHTML = '';
@@ -2342,7 +2275,7 @@ function actualizarTablaSecciones(secciones) {
     });
 }
 
-// Función para cargar los cursos en el select del modal
+////////////////////////////////////////// cargar cursos en select //////////////////////////////////////////
 async function cargarCursosEnSelect() {
     try {
         const response = await fetch('/drive_ucv/cursos/listar');
@@ -2372,7 +2305,7 @@ async function cargarCursosEnSelect() {
     }
 }
 
-// Llamar a esta función cuando se abra el modal
+////////////////////////////////////////// abrir modal crear seccion //////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     const btnNuevaSeccion = document.querySelector('.btn-nueva-seccion');
     if (btnNuevaSeccion) {
@@ -2382,6 +2315,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Cargar cursos cuando se carga la página
+document.addEventListener('DOMContentLoaded', async () => {
+    if (document.getElementById('secciones-section')) {
+        console.log('Cargando cursos inicialmente...');
+        await cargarCursos();
+    }
+});
+// Event listeners para filtrar secciones
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroCurso = document.getElementById('filtro-curso');
+    const filtroCiclo = document.getElementById('filtro-ciclo');
+    const filtroEstado = document.getElementById('filtro-estado');
+
+    filtroCurso?.addEventListener('change', filtrarSecciones);
+    filtroCiclo?.addEventListener('change', filtrarSecciones);
+    filtroEstado?.addEventListener('change', filtrarSecciones);
+});
+
 </script>
 @endsection
 

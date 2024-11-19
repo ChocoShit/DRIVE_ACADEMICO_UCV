@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class SeccionController extends Controller
 {
@@ -90,7 +91,7 @@ class SeccionController extends Controller
                 'success' => true,
                 'data' => $cursos
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error en listarCursos:', [
                 'mensaje' => $e->getMessage(),
@@ -131,9 +132,17 @@ class SeccionController extends Controller
     public function filtrarSecciones(Request $request)
     {
         try {
-            $cursoId = $request->input('curso_id');
-            $estado = $request->input('estado');
-            $ciclo = $request->input('ciclo');
+            Log::info('Iniciando filtrarSecciones con parámetros:', $request->all());
+
+            $cursoId = $request->input('curso_id') ?: null;
+            $estado = $request->input('estado') ?: null;
+            $ciclo = $request->input('ciclo') ? trim($request->input('ciclo')) : null;
+
+            Log::info('Parámetros procesados:', [
+                'curso_id' => $cursoId,
+                'estado' => $estado,
+                'ciclo' => $ciclo
+            ]);
 
             $secciones = DB::select(
                 'CALL sp_filtrar_secciones(?, ?, ?)',
@@ -142,13 +151,89 @@ class SeccionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $secciones
+                'data' => array_map(function($seccion) {
+                    return [
+                        'id_seccion' => $seccion->id_seccion,
+                        'nombre_seccion' => $seccion->nombre_seccion,
+                        'nombre_curso' => $seccion->nombre_curso,
+                        'ciclo' => $seccion->ciclo,
+                        'status' => $seccion->status,
+                        'total_alumnos' => $seccion->total_alumnos ?? 0,
+                        'docentes' => $seccion->docentes ?: 'Sin asignar'
+                    ];
+                }, $secciones)
             ]);
         } catch (\Exception $e) {
-            Log::error('Error en filtrarSecciones: ' . $e->getMessage());
+            Log::error('Error en filtrarSecciones:', [
+                'mensaje' => $e->getMessage(),
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al filtrar las secciones'
+                'message' => 'Error al filtrar las secciones',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    public function crearSeccion(Request $request)
+    {
+        try {
+            Log::info('Datos recibidos:', $request->all());
+
+            $validated = $request->validate([
+                'id_curso' => 'required|integer|exists:curso,id_curso',
+                'nombre_seccion' => 'required|string|max:10',
+                'docentes' => 'required|array',
+                'docentes.*' => 'required|integer|exists:usuario,id_usuario'
+            ]);
+
+            DB::beginTransaction();
+
+            // Asegurarse de que los valores sean del tipo correcto
+            $idCurso = (int) $validated['id_curso'];
+            $nombreSeccion = $validated['nombre_seccion'];
+            $docentesJson = json_encode(array_map('intval', $validated['docentes']));
+
+            Log::info('Ejecutando sp_crear_seccion con parámetros:', [
+                'nombre_seccion' => $nombreSeccion,
+                'id_curso' => $idCurso,
+                'docentes' => $docentesJson
+            ]);
+
+            $seccion = DB::select(
+                'CALL sp_crear_seccion(?, ?, ?)',
+                [$nombreSeccion, $idCurso, $docentesJson]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sección creada correctamente',
+                'data' => $seccion[0] ?? null
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al crear sección:', [
+                'mensaje' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la sección',
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
