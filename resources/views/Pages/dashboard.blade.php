@@ -1,7 +1,7 @@
 @extends('Layouts.AppLayout')
 
 @section('title')
-DRIVE UCV
+LeDrive - Dashboard
 @endsection
 
 @section('content')
