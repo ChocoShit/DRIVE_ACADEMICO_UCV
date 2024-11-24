@@ -5,6 +5,8 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\SeccionController;
+use App\Http\Controllers\ResumenController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,7 +29,6 @@ Route::post('/logout',[AuthController::class,'postLogout'])->name('login.logout'
 //Route::get('/alumnos/listar', [AlumnoController::class, 'listarAlumnos'])->name('alumnos.listar');
 
 Route::middleware(['auth'])->group(function () {
-
     Route::prefix('alumnos')->group(function () {
         Route::get('/listar', [AlumnoController::class, 'listarAlumnos'])->name('alumnos.listar');
         Route::post('/crear', [AlumnoController::class, 'crearAlumno'])->name('alumnos.crear');
@@ -61,5 +62,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/filtrar', [SeccionController::class, 'filtrarSecciones']);
         Route::get('/curso/{id}', [SeccionController::class, 'seccionesPorCurso']);
         Route::put('/actualizar/{id}', [SeccionController::class, 'actualizarSeccion']);
+    });
+    Route::prefix('resumen')->middleware(['auth'])->group(function () {
+        Route::get('/', [ResumenController::class, 'index'])->name('resumen.index');
+        Route::get('/secciones/listar', [ResumenController::class, 'listarSecciones']);
+        Route::get('/seccion/{id}/alumnos', [ResumenController::class, 'listarAlumnosSeccion']);
+        Route::post('/individual', [ResumenController::class, 'generarReporteIndividual']);
+        Route::post('/seccion', [ResumenController::class, 'generarReporteSeccion']);
+        Route::get('/historial', [ResumenController::class, 'historialReportes']);
+        Route::get('/descargar/{id}', [ResumenController::class, 'descargarReporte']);
     });
 });

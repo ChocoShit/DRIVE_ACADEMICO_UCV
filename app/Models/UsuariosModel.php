@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 class UsuariosModel extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -42,4 +43,18 @@ class UsuariosModel extends Authenticatable
         return $this->username; // Valor actual del campo NombreUsuario
     }
 
+    public function datosPersona()
+    {
+        return $this->hasOne(DatosPersona::class, 'id_usuario');
+    }
+
+    public function secciones()
+    {
+        return $this->belongsToMany(Seccion::class, 'docente_seccion', 'id_usuario', 'id_seccion');
+    }
+
+    public function carpetas()
+    {
+        return $this->hasMany(Carpeta::class, 'id_usuario');
+    }
 }

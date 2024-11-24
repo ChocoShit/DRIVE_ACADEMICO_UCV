@@ -9,13 +9,14 @@ LeDrive - Dashboard
     <!-- Sidebar -->
     <div class="w-64 bg-gray-800 text-white fixed h-full">
         <div class="p-4">
-            <h2 class="text-xl font-bold mb-6 text-center">DRIVE UCV</h2>
+            <h2 class="text-xl font-bold mb-6 text-center">LeDrive</h2>
             <nav>
-                <a href="#" data-section="resumen" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1 active">
-                    <i class="fas fa-home w-6"></i>
-                    <span>Resumen</span>
-                </a>
+
                 @if(auth()->user()->id_tipo_usuario == 1 )
+                <a href="#" data-section="resumen" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1 active">
+                    <i class="fas fa-chart-bar w-6"></i>
+                    <span>Reportes</span>
+                </a>
                 <a href="#" data-section="alumnos" class="nav-link flex items-center p-3 text-gray-300 hover:bg-gray-700 rounded mb-1">
                     <i class="fas fa-users w-6"></i>
                     <span>Gestión de Alumnos</span>
@@ -136,14 +137,11 @@ LeDrive - Dashboard
             </div>
         </div>
 
-        <!-- Contenido de las secciones - Agregar padding-top -->
+        <!-- Contenido de las secciones -->
         <div class="p-8 pt-24">
-            <!-- Tus secciones existentes -->
+            <!-- Agregar la sección de resumen -->
             <section id="resumen-section" class="section-content hidden">
-                <h1 class="text-2xl font-bold mb-6">Panel Principal</h1>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Tus tarjetas actuales -->
-                </div>
+                @include('Pages.Sections.resumen')
             </section>
 
             <!------------------------------------------------------------------- Sección Alumnos ------------------------------------------------------>
