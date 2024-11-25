@@ -35,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
        // Route::put('/actualizar/{id}', [AlumnoController::class, 'actualizarAlumno'])->name('alumnos.actualizar');
         Route::put('/estado/{id}', [AlumnoController::class, 'cambiarEstado'])->name('alumnos.estado');
         Route::post('/filtrar', [AlumnoController::class, 'filtrar'])->name('alumnos.filtrar');
-        Route::post('/verificar-usuario', [AlumnoController::class, 'verificarUsuario'])->name('alumnos.verificar-usuario');
+        Route::post('/verificar-username', [AlumnoController::class, 'verificarUsername'])->name('alumnos.verificar-username');
         Route::get('/obtener/{id}', [AlumnoController::class, 'obtenerAlumno'])->name('alumnos.obtener');
         Route::put('/editar/{id}', [AlumnoController::class, 'editarAlumno'])->name('alumnos.editar');
     });
@@ -55,13 +55,16 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('secciones')->group(function () {
-        Route::get('/listar', [SeccionController::class, 'listarSecciones']);
+        Route::get('/listar', [SeccionController::class, 'listarSecciones'])->name('secciones.listar');
         Route::post('/crear', [SeccionController::class, 'crearSeccion']);
         Route::put('/estado/{id}', [SeccionController::class, 'cambiarEstado']);
         Route::get('/docentes', [SeccionController::class, 'listarDocentesDisponibles']);
         Route::post('/filtrar', [SeccionController::class, 'filtrarSecciones']);
         Route::get('/curso/{id}', [SeccionController::class, 'seccionesPorCurso']);
         Route::put('/actualizar/{id}', [SeccionController::class, 'actualizarSeccion']);
+        Route::get('/nombres', [SeccionController::class, 'listarNombresSecciones']);
+        Route::post('/crear-nueva', [SeccionController::class, 'crearNuevaSeccion']);
+        Route::post('/asignar', [SeccionController::class, 'asignarSeccion']);
     });
     Route::prefix('resumen')->middleware(['auth'])->group(function () {
         Route::get('/', [ResumenController::class, 'index'])->name('resumen.index');

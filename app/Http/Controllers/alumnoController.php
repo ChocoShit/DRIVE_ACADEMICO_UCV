@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 
-class AlumnoController extends Controller
+class alumnoController extends Controller
 {
     public function listarAlumnos()
     {

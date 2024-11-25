@@ -14,65 +14,60 @@ class SeccionController extends Controller
         $this->middleware('auth');
     }
 
-    public function listarSecciones(Request $request)
+    public function listarSecciones()
     {
         try {
-            // Verificar si la conexión está activa
-            if (!DB::connection()->getPdo()) {
-                throw new \Exception('No se pudo conectar a la base de datos');
-            }
-
             Log::info('Iniciando listarSecciones');
 
-            // Llamar al procedimiento almacenado sin parámetros inicialmente
+            // Ejecutar el procedimiento almacenado
             $secciones = DB::select('CALL sp_listar_secciones(NULL, NULL, NULL)');
 
-            Log::info('Secciones recuperadas:', [
+            Log::info('Resultado de sp_listar_secciones:', [
                 'cantidad' => count($secciones),
-                'muestra' => array_slice($secciones, 0, 2) // Log de las primeras 2 secciones
+                'datos' => $secciones
+            ]);
+
+            // Verificar si hay datos
+            if (empty($secciones)) {
+                Log::info('No se encontraron secciones');
+                return response()->json([
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
+
+            // Mapear los resultados
+            $seccionesMapeadas = array_map(function($seccion) {
+                return [
+                    'id_seccion' => $seccion->id_seccion,
+                    'nombre_seccion' => $seccion->nombre_seccion,
+                    'nombre_curso' => $seccion->nombre_curso,
+                    'ciclo' => $seccion->ciclo,
+                    'total_alumnos' => $seccion->total_alumnos,
+                    'docentes' => $seccion->docentes ?: 'Sin asignar',
+                    'status' => $seccion->status
+                ];
+            }, $secciones);
+
+            Log::info('Enviando respuesta con secciones mapeadas:', [
+                'cantidad' => count($seccionesMapeadas)
             ]);
 
             return response()->json([
                 'success' => true,
-                'data' => array_map(function($seccion) {
-                    return [
-                        'id_seccion' => $seccion->id_seccion,
-                        'nombre_seccion' => $seccion->nombre_seccion,
-                        'nombre_curso' => $seccion->nombre_curso,
-                        'ciclo' => $seccion->ciclo,
-                        'status' => $seccion->status,
-                        'total_alumnos' => $seccion->total_alumnos,
-                        'docentes' => $seccion->docentes ?: 'Sin asignar'
-                    ];
-                }, $secciones)
+                'data' => $seccionesMapeadas
             ]);
-
-        } catch (\PDOException $e) {
-            Log::error('Error de PDO en listarSecciones:', [
-                'mensaje' => $e->getMessage(),
-                'código' => $e->getCode(),
-                'archivo' => $e->getFile(),
-                'línea' => $e->getLine()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de base de datos al cargar las secciones',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
 
         } catch (\Exception $e) {
-            Log::error('Error general en listarSecciones:', [
+            Log::error('Error en listarSecciones:', [
                 'mensaje' => $e->getMessage(),
-                'archivo' => $e->getFile(),
-                'línea' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'linea' => $e->getLine(),
+                'archivo' => $e->getFile()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cargar las secciones',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'message' => 'Error al cargar las secciones'
             ], 500);
         }
     }
@@ -132,48 +127,26 @@ class SeccionController extends Controller
     public function filtrarSecciones(Request $request)
     {
         try {
-            Log::info('Iniciando filtrarSecciones con parámetros:', $request->all());
+            $cursoId = $request->input('curso') ?: null;
+            $ciclo = $request->input('ciclo') ?: null;
+            $docenteId = $request->input('docente') ?: null;
+            $status = $request->input('estado') !== '' ? $request->input('estado') : null;
 
-            $cursoId = $request->input('curso_id') ?: null;
-            $estado = $request->input('estado') ?: null;
-            $ciclo = $request->input('ciclo') ? trim($request->input('ciclo')) : null;
-
-            Log::info('Parámetros procesados:', [
-                'curso_id' => $cursoId,
-                'estado' => $estado,
-                'ciclo' => $ciclo
+            $secciones = DB::select('CALL sp_listar_secciones(?, ?, ?, ?)', [
+                $cursoId,
+                $ciclo,
+                $docenteId,
+                $status
             ]);
-
-            $secciones = DB::select(
-                'CALL sp_filtrar_secciones(?, ?, ?)',
-                [$cursoId, $estado, $ciclo]
-            );
 
             return response()->json([
                 'success' => true,
-                'data' => array_map(function($seccion) {
-                    return [
-                        'id_seccion' => $seccion->id_seccion,
-                        'nombre_seccion' => $seccion->nombre_seccion,
-                        'nombre_curso' => $seccion->nombre_curso,
-                        'ciclo' => $seccion->ciclo,
-                        'status' => $seccion->status,
-                        'total_alumnos' => $seccion->total_alumnos ?? 0,
-                        'docentes' => $seccion->docentes ?: 'Sin asignar'
-                    ];
-                }, $secciones)
+                'data' => $secciones
             ]);
         } catch (\Exception $e) {
-            Log::error('Error en filtrarSecciones:', [
-                'mensaje' => $e->getMessage(),
-                'archivo' => $e->getFile(),
-                'linea' => $e->getLine()
-            ]);
-
             return response()->json([
                 'success' => false,
-                'message' => 'Error al filtrar las secciones',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'message' => 'Error al filtrar las secciones'
             ], 500);
         }
     }
@@ -234,6 +207,104 @@ class SeccionController extends Controller
                 'success' => false,
                 'message' => 'Error al crear la sección',
                 'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    public function cambiarEstado(Request $request, $idSeccion)
+    {
+        try {
+            $nuevoEstado = $request->input('status');
+
+            Log::info('Cambiando estado de sección:', [
+                'id_seccion' => $idSeccion,
+                'nuevo_estado' => $nuevoEstado
+            ]);
+
+            $resultado = DB::select('CALL sp_cambiar_estado_seccion(?, ?)', [
+                $idSeccion,
+                $nuevoEstado
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado actualizado correctamente',
+                'data' => $resultado[0] ?? null
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al cambiar estado:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar el estado'
+            ], 500);
+        }
+    }
+
+    public function listarNombresSecciones()
+    {
+        try {
+            $secciones = DB::select('CALL sp_listar_nombres_secciones()');
+            return response()->json([
+                'success' => true,
+                'data' => $secciones
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las secciones'
+            ], 500);
+        }
+    }
+
+    public function crearNuevaSeccion(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nombre_seccion' => 'required|string|max:10'
+            ]);
+
+            $seccion = DB::select('CALL sp_crear_nueva_seccion(?)', [
+                $validated['nombre_seccion']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sección creada correctamente',
+                'data' => $seccion[0]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la sección'
+            ], 500);
+        }
+    }
+
+    public function asignarSeccion(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'id_seccion' => 'required|integer',
+                'id_curso' => 'required|integer',
+                'id_docente' => 'required|integer'
+            ]);
+
+            $resultado = DB::select('CALL sp_asignar_seccion(?, ?, ?)', [
+                $validated['id_seccion'],
+                $validated['id_curso'],
+                $validated['id_docente']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sección asignada correctamente',
+                'data' => $resultado[0]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }
