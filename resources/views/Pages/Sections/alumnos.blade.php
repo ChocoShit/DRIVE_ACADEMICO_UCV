@@ -1,174 +1,134 @@
-<div class="bg-white rounded-lg shadow-lg p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Gestión de Alumnos</h2>
-        <button type="button" onclick="mostrarModalCrearAlumno()"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
-            <i class="fas fa-plus mr-2"></i> Nuevo Alumno
-        </button>
-    </div>
-
-    <!-- Buscador -->
-    <div class="mb-4">
-        <div class="flex gap-4">
-            <div class="flex-1">
-                <input type="text"
-                       id="searchAlumno"
-                       placeholder="Buscar alumno..."
-                       class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-            </div>
-            <div class="flex gap-2">
-                <select id="filterCiclo" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                    <option value="">Todos los ciclos</option>
-                    <option value="IX">IX Ciclo</option>
-                    <option value="X">X Ciclo</option>
-                </select>
-                <select id="filterEstadoAlumno" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                    <option value="">Todos los estados</option>
-                    <option value="1">Activo</option>
-                    <option value="0">Inactivo</option>
-                </select>
-                <div class="flex gap-2">
-                    <input type="date"
-                           id="fechaInicioAlumno"
-                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                    <input type="date"
-                           id="fechaFinAlumno"
-                           class="px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabla de Alumnos -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombres</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciclo</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celular</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ultima Actualización</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-alumnos" class="divide-y divide-gray-200">
-                <!-- Los datos se cargarán dinámicamente -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Modal para Crear/Editar Alumno -->
-<div id="modal-alumno" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <!-- ... contenido del modal ... -->
-    <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-        <!-- Asegúrate de que este ID existe -->
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium" id="modal-titulo">Nuevo Alumno</h3>
-            <button type="button" onclick="cerrarModalAlumno()" class="text-gray-400 hover:text-gray-500">
-                <i class="fas fa-times"></i>
+<div class="flex flex-col h-full">
+    <div class="bg-white rounded-lg shadow-lg p-4 md:p-6 w-full">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800">Gestión de Alumnos</h2>
+            <button type="button" onclick="mostrarModalCrearAlumno()"
+                    class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center">
+                <i class="fas fa-plus mr-2"></i> Nuevo Alumno
             </button>
         </div>
-        <form id="form-alumno" onsubmit="guardarAlumno(event)">
-            <div class="grid grid-cols-2 gap-4">
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Nombres</label>
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
                     <input type="text"
-                           name="nombres"
-                           required
-                           onchange="guardarDatosTemporales(event)"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                           id="searchAlumno"
+                           placeholder="Buscar alumno..."
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Apellidos</label>
-                    <input type="text" name="apellidos" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Código</label>
-                    <input type="text"
-                           name="codigo"
-                           required
-                           maxlength="10"
-                           oninput="validarCodigo(this)"
-                           onkeydown="return (event.keyCode >= 48 && event.keyCode <= 57) ||
-                                    (event.keyCode >= 96 && event.keyCode <= 105) ||
-                                    event.keyCode == 8 ||
-                                    event.keyCode == 46"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="Ingrese código">
-                    <span class="text-xs text-gray-500">Ingrese un código de 10 dígitos</span>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Ciclo</label>
-                    <select name="ciclo" required class="mt-1 block w-full rounded-md focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Seleccione un ciclo</option>
+                <div class="flex flex-col md:flex-row gap-2">
+                    <select id="filterCiclo" class="w-full md:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">Todos los ciclos</option>
                         <option value="IX">IX Ciclo</option>
                         <option value="X">X Ciclo</option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email Institucional</label>
-                    <input type="email"
-                           id="email"
-                           name="email"
-                           required
-                           pattern="[a-zA-Z0-9._%+-]+@ucvvirtual\.edu\.pe$"
-                           oninput="validarEmailInstitucional(this)"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="ejemplo@ucvvirtual.edu.pe">
-                    <span class="text-xs text-gray-500">Use su correo institucional (@ucvvirtual.edu.pe)</span>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Celular</label>
-                    <input type="tel"
-                           name="celular"
-                           required
-                           pattern="9[0-9]{8}"
-                           maxlength="9"
-                           oninput="validarCelularAlumno(this)"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="Ingrese número de celular">
-                    <span class="text-xs text-gray-500">El número debe empezar con 9 y tener 9 dígitos</span>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Usuario</label>
-                    <input type="text" name="username"required minlength="4" onkeyup="validarUsuarioDisponible(this.value)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="Ingrese nombre de usuario">
-                    <span id="username-message" class="text-xs"></span>
-                </div>
-                <div id="password-container">
-                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password"
-                           id="password-alumno"
-                           name="password"
-                           required
-                           minlength="6"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                           placeholder="Ingrese contraseña">
-                    <span class="text-xs text-gray-500">La contraseña debe tener al menos 6 caracteres</span>
+                    <select id="filterEstadoAlumno" class="w-full md:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">Todos los estados</option>
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                    <div class="flex flex-col md:flex-row items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Desde:</span>
+                            <input type="date"
+                                   id="fechaInicioAlumno"
+                                   class="w-full md:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">Hasta:</span>
+                            <input type="date"
+                                   id="fechaFinAlumno"
+                                   class="w-full md:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="mt-4 flex justify-end">
-                <button type="button"
-                        onclick="cerrarModalAlumno()"
-                        class="mr-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                    Cancelar
-                </button>
-                <button type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
-                    Guardar
-                </button>
+        </div>
+
+
+   <div class="overflow-x-auto">
+            <div class="inline-block min-w-full align-middle">
+                <div class="overflow-hidden border border-gray-200 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alumno</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-alumnos" class="bg-white divide-y divide-gray-200">
+                            <!-- Las filas se generarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<div id="modal-alumno" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+    <div class="relative min-h-screen md:flex md:items-center md:justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-[95%] md:max-w-[800px] lg:max-w-[1000px] mx-auto">
+            <div class="p-4 md:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="modal-titulo" class="text-lg md:text-xl font-medium text-gray-900">Nuevo Alumno</h3>
+                    <button type="button" onclick="cerrarModalAlumno()" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="form-alumno" onsubmit="guardarAlumno(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div>
+                            <label for="nombres" class="block text-sm font-medium text-gray-700">Nombres</label>
+                            <input type="text" name="nombres" id="nombres" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
+                            <input type="text" name="apellidos" id="apellidos" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="codigo" class="block text-sm font-medium text-gray-700">Código</label>
+                            <input type="text" name="codigo" id="codigo" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" name="email" id="email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="celular" class="block text-sm font-medium text-gray-700">Celular</label>
+                            <input type="text" name="celular" id="celular" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+                            <input type="text" name="username" id="username" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                            <input type="password" name="password" id="password" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="ciclo" class="block text-sm font-medium text-gray-700">Ciclo</label>
+                            <select id="ciclo" name="ciclo" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="IX">IX Ciclo</option>
+                                <option value="X">X Ciclo</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+                <div id="cursos-container" class="mt-4">
+                    <!-- Aquí se cargarán los cursos dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 
 
 <script>
@@ -223,7 +183,9 @@
                 celular: formData.get('celular') ? formData.get('celular').toString().padStart(9, '0') : null,
                 username: formData.get('username'),
                 ciclo: formData.get('ciclo').substring(0, 2),
-                password: formData.get('password')
+                password: formData.get('password'),
+                id_curso: formData.get('curso'),
+                id_seccion: formData.get('seccion')
             };
 
             console.log('Datos a enviar:', data);
@@ -328,13 +290,11 @@
     // Asegúrate de que la función filtrarAlumnos esté correctamente implementada
     async function filtrarAlumnos() {
         try {
-            const busqueda = document.getElementById('searchAlumno')?.value || '';
-            const ciclo = document.getElementById('filterCiclo')?.value || '';
-            const estado = document.getElementById('filterEstadoAlumno')?.value || '';
-            const fechaInicio = document.getElementById('fechaInicioAlumno')?.value || '';
-            const fechaFin = document.getElementById('fechaFinAlumno')?.value || '';
-
-            console.log('Filtrando alumnos con:', { busqueda, ciclo, estado, fechaInicio, fechaFin });
+            const busqueda = document.getElementById('searchAlumno').value || '';
+            const ciclo = document.getElementById('filterCiclo').value || '';
+            const estado = document.getElementById('filterEstadoAlumno').value || '';
+            const fechaInicio = document.getElementById('fechaInicioAlumno').value || '';
+            const fechaFin = document.getElementById('fechaFinAlumno').value || '';
 
             const response = await fetch('/drive_ucv/alumnos/filtrar', {
                 method: 'POST',
@@ -406,19 +366,11 @@
 
                 result.data.forEach(alumno => {
                     const estadoActual = alumno.status == 1 || alumno.status === '1';
-                    const fechaActualizacion = alumno.fecha_actualizacion
-                        ? new Date(alumno.fecha_actualizacion).toLocaleString()
-                        : 'No actualizado';
 
                     tablaAlumnos.innerHTML += `
                         <tr data-user-id="${alumno.id_usuario}">
-                            <td class="px-6 py-4">${alumno.nombres}</td>
-                            <td class="px-6 py-4">${alumno.apellidos}</td>
+                            <td class="px-6 py-4">${alumno.nombres} ${alumno.apellidos}</td>
                             <td class="px-6 py-4">${alumno.codigo}</td>
-                            <td class="px-6 py-4">${alumno.ciclo}</td>
-                            <td class="px-6 py-4">${alumno.email}</td>
-                            <td class="px-6 py-4">${alumno.celular || '-'}</td>
-                            <td class="px-6 py-4">${alumno.username}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <label class="relative inline-flex items-center cursor-pointer">
@@ -433,11 +385,12 @@
                                     </label>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">${fechaActualizacion}</td>
                             <td class="px-6 py-4 text-center">
-                                <button onclick="editarAlumno(${alumno.id_usuario})"
-                                        class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-edit"></i>
+                                <button onclick="mostrarInformacionAlumno(${alumno.id_usuario})" class="text-blue-600 hover:text-blue-900 bg-gray-200 hover:bg-gray-300 rounded px-2 py-1">
+                                    <i class="fas fa-eye"></i> Ver Info
+                                </button>
+                                <button onclick="editarAlumno(${alumno.id_usuario})" class="text-white bg-green-600 hover:bg-green-700 rounded px-2 py-1">
+                                    <i class="fas fa-edit"></i> Editar
                                 </button>
                             </td>
                         </tr>
@@ -492,8 +445,6 @@
                     showConfirmButton: false,
                     timer: 1500
                 });
-                const seccionActual = localStorage.getItem('seccionActiva');
-                activarSeccion(seccionActual);
             } else {
                 throw new Error(result.message || 'Error al actualizar el estado');
             }
@@ -581,13 +532,8 @@
 
         tbody.innerHTML = alumnos.map(alumno => `
             <tr data-user-id="${alumno.id_usuario}">
-                <td class="px-6 py-4">${alumno.nombres || ''}</td>
-                <td class="px-6 py-4">${alumno.apellidos || ''}</td>
-                <td class="px-6 py-4">${alumno.codigo || ''}</td>
-                <td class="px-6 py-4">${alumno.ciclo || ''}</td>
-                <td class="px-6 py-4">${alumno.email || ''}</td>
-                <td class="px-6 py-4">${alumno.celular || ''}</td>
-                <td class="px-6 py-4">${alumno.username || ''}</td>
+                <td class="px-6 py-4">${alumno.nombres} ${alumno.apellidos}</td>
+                <td class="px-6 py-4">${alumno.codigo}</td>
                 <td class="px-6 py-4">
                     <div class="flex items-center">
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -602,11 +548,12 @@
                         </label>
                     </div>
                 </td>
-                <td class="px-6 py-4">${alumno.fecha_actualizacion || ''}</td>
                 <td class="px-6 py-4 text-center">
-                    <button onclick="editarAlumno(${alumno.id_usuario})"
-                            class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-edit"></i>
+                    <button onclick="mostrarInformacionAlumno(${alumno.id_usuario})" class="text-blue-600 hover:text-blue-900 bg-gray-200 hover:bg-gray-300 rounded px-2 py-1">
+                        <i class="fas fa-eye"></i> Ver Info
+                    </button>
+                    <button onclick="editarAlumno(${alumno.id_usuario})" class="text-white bg-green-600 hover:bg-green-700 rounded px-2 py-1">
+                        <i class="fas fa-edit"></i> Editar
                     </button>
                 </td>
             </tr>
@@ -615,81 +562,62 @@
 
     ////////////////////////////////////////// cerrar el modal //////////////////////////////////////////
     function cerrarModalAlumno() {
-        const modalAlumno = document.getElementById('modal-alumno');
-        const formAlumno = document.getElementById('form-alumno');
+        const modal = document.getElementById('modal-alumno');
+        modal.classList.add('hidden');
 
-        if (modalAlumno) {
-            const formData = new FormData(formAlumno);
-            const hasData = Array.from(formData.values()).some(value => value !== '');
-
-            if (hasData) {
-                Swal.fire({
-                    title: '¿Está seguro de cerrar?',
-                    text: "Se perderán los datos ingresados",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, cerrar',
-                    cancelButtonText: 'Continuar editando',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        if (formAlumno) formAlumno.reset();
-                        modalAlumno.classList.add('hidden');
-                    }
-                });
-            } else {
-                modalAlumno.classList.add('hidden');
-            }
-        }
+        // Limpiar datos temporales al cerrar
+        localStorage.removeItem('formAlumnoTemp');
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const modalAlumno = document.getElementById('modal-alumno');
-        if (modalAlumno) {
-            const modalContent = modalAlumno.querySelector('.relative');
-            if (modalContent) {
-                modalContent.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-            modalAlumno.removeEventListener('click', cerrarModalAlumno);
+    // Agregar event listener para cerrar el modal con la tecla Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            cerrarModalAlumno();
         }
     });
 
-    setTimeout(() => {
+    // Cerrar el modal si se hace clic fuera de él
+    document.addEventListener('click', function(event) {
         const modal = document.getElementById('modal-alumno');
-        if (modal) {
-            modal.classList.add('show');
+        const modalContent = modal.querySelector('.relative');
+
+        if (event.target === modal) {
+            cerrarModalAlumno();
         }
-    }, 10);
+    });
 
     ////////////////////////////////////////// mostrar modal crear alumno //////////////////////////////////////////
-    function mostrarModalCrearAlumno() {
+    async function mostrarModalCrearAlumno() {
+        // Limpiar el formulario
         const form = document.getElementById('form-alumno');
-        const modalTitulo = document.getElementById('modal-titulo');
-        const passwordContainer = document.getElementById('password-container');
-        const passwordField = document.getElementById('password-alumno');
-
-        // Resetear el formulario
         form.reset();
-        form.removeAttribute('data-edit-id');
 
-        // Mostrar el campo de contraseña para nuevo alumno
-        if (passwordContainer) {
-            passwordContainer.style.display = 'block';
-            if (passwordField) {
-                passwordField.setAttribute('required', 'required');
-                passwordField.disabled = false;
-            }
-        }
-
-        // Cambiar el título del modal
-        modalTitulo.textContent = 'Nuevo Alumno';
+        // Limpiar el contenedor de cursos
+        const cursosContainer = document.getElementById('cursos-container');
+        cursosContainer.innerHTML = '';
 
         // Mostrar el modal
-        document.getElementById('modal-alumno').classList.remove('hidden');
+        const modal = document.getElementById('modal-alumno');
+        modal.classList.remove('hidden');
+
+        // Cambiar el título del modal
+        document.getElementById('modal-titulo').textContent = 'Nuevo Alumno';
+
+        // Remover ID de edición si existe
+        form.removeAttribute('data-edit-id');
+
+        // Limpiar datos temporales almacenados
+        localStorage.removeItem('formAlumnoTemp');
+
+        // Cargar cursos por ciclo inicial
+        await cargarCursosPorCiclo('IX'); // Cargar cursos para el ciclo IX por defecto
+
+        // Agregar event listener al select de ciclo
+        const cicloSelect = document.getElementById('ciclo');
+        cicloSelect.addEventListener('change', async (event) => {
+            const cicloSeleccionado = event.target.value;
+            await cargarCursosPorCiclo(cicloSeleccionado);
+        });
     }
 
     ////////////////////////////////////////// guardar datos temporales //////////////////////////////////////////
@@ -826,4 +754,168 @@
             return false;
         }
     }
+
+    // Función para cargar cursos
+    async function cargarCursos() {
+        try {
+            const response = await fetch('/drive_ucv/cursos/listar');
+            const result = await response.json();
+
+            if (result.success) {
+                const selectCurso = document.getElementById('select-curso');
+                selectCurso.innerHTML = '<option value="">Seleccione un curso</option>';
+
+                result.data.forEach(curso => {
+                    selectCurso.innerHTML += `
+                        <option value="${curso.id_curso}">
+                            ${curso.nombre_curso} - ${curso.ciclo}
+                        </option>
+                    `;
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar cursos:', error);
+        }
+    }
+
+        // Función para cargar cursos según el ciclo
+        async function cargarCursosPorCiclo(ciclo) {
+        if (!ciclo) return;
+
+        try {
+            const response = await fetch(`/drive_ucv/alumnos/cursos/por-ciclo/${ciclo}`);
+            const result = await response.json();
+
+            const cursosContainer = document.getElementById('cursos-container');
+            cursosContainer.innerHTML = ''; // Limpiar contenedor
+
+            if (result.success) {
+                // Crear una tabla para mostrar los cursos
+                const table = document.createElement('table');
+                table.className = 'min-w-full divide-y divide-gray-200';
+                table.innerHTML = `
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sección</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cursos-list"></tbody>
+                `;
+                cursosContainer.appendChild(table);
+
+                result.data.forEach(curso => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2">${curso.nombre_curso}</td>
+                        <td class="px-4 py-2">
+                            <select name="seccion_${curso.id_curso}" class="w-full border-gray-300 rounded-md">
+                                <option value="">Seleccione una sección</option>
+                                <!-- Aquí se llenarán las secciones dinámicamente -->
+                            </select>
+                        </td>
+                    `;
+                    document.getElementById('cursos-list').appendChild(row);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar cursos:', error);
+            mostrarError('Error al cargar los cursos');
+        }
+    }
+    // Función para cargar secciones según el curso seleccionado
+    /*async function cargarSecciones(cursoId) {
+        if (!cursoId) return;
+
+        try {
+            const response = await fetch(`/drive_ucv/secciones/por-curso/${cursoId}`);
+            const result = await response.json();
+
+            const selectSeccion = document.getElementById('select-seccion');
+            selectSeccion.innerHTML = '<option value="">Seleccione una sección</option>';
+
+            if (result.success) {
+                result.data.forEach(seccion => {
+                    selectSeccion.innerHTML += `
+                        <option value="${seccion.id_seccion}">
+                            ${seccion.nombre_seccion}
+                        </option>
+                    `;
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar secciones:', error);
+        }
+    }*/
+
+
+
+    // Función para cargar secciones de un curso
+    async function cargarSeccionesPorCurso(cursoId, selectElement) {
+        try {
+            const response = await fetch(`/drive_ucv/alumnos/secciones/por-curso/${cursoId}`);
+            const result = await response.json();
+
+            if (result.success) {
+                selectElement.innerHTML = '<option value="">Seleccione una sección</option>'; // Limpiar opciones
+                result.data.forEach(seccion => {
+                    const option = document.createElement('option');
+                    option.value = seccion.id_seccion;
+                    option.textContent = seccion.nombre_seccion;
+                    selectElement.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar secciones:', error);
+        }
+    }
+    // Función para verificar capacidad de sección
+    function verificarCapacidadSeccion(select) {
+        const seccionId = select.value;
+        const infoDiv = document.getElementById(`info_seccion_${select.name.split('_')[1]}`);
+
+        if (!seccionId) {
+            infoDiv.innerHTML = '';
+            return;
+        }
+
+        const option = select.options[select.selectedIndex];
+        const capacidad = parseInt(option.dataset.capacidad);
+
+        if (capacidad >= 30) {
+            infoDiv.innerHTML = `
+                <span class="text-red-600">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Esta sección está llena (30/30 alumnos)
+                </span>
+            `;
+            select.value = ''; // Limpiar selección
+            return;
+        }
+
+        infoDiv.innerHTML = `
+            <span class="text-green-600">
+                <i class="fas fa-check-circle"></i>
+                Capacidad disponible: ${capacidad}/30 alumnos
+            </span>
+        `;
+    }
+
+    async function mostrarInformacionAlumno(id) {
+        try {
+            const response = await fetch(`/drive_ucv/alumnos/obtener/${id}`);
+            const result = await response.json();
+
+            if (result.success) {
+                // Mostrar la información en un modal o en un alert
+                console.log(result.data); // Aquí puedes mostrar la información en un modal
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error al obtener información del alumno:', error);
+        }
+    }
 </script>
+
+

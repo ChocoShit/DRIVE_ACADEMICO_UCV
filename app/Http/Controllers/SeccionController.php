@@ -308,5 +308,22 @@ class SeccionController extends Controller
             ], 500);
         }
     }
+
+    public function cargarCursosPorCiclo($ciclo)
+   {
+       try {
+           $cursos = DB::select('CALL sp_cargar_cursos_por_ciclo(?)', [$ciclo]);
+
+           return response()->json([
+               'success' => true,
+               'data' => $cursos
+           ]);
+       } catch (\Exception $e) {
+           return response()->json([
+               'success' => false,
+               'message' => 'Error al cargar los cursos: ' . $e->getMessage()
+           ], 500);
+        }
+    }
 }
 

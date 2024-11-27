@@ -12,6 +12,22 @@ use Illuminate\Validation\ValidationException;
 
 class alumnoController extends Controller
 {
+    public function listarAlumnosResumidos()
+{
+    try {
+        $alumnos = DB::select('CALL sp_listar_alumnos_resumido()');
+
+        return response()->json([
+            'success' => true,
+            'data' => $alumnos
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener la lista de alumnos: ' . $e->getMessage()
+        ], 500);
+    }
+}
     public function listarAlumnos()
     {
         try {
@@ -28,7 +44,7 @@ class alumnoController extends Controller
                 }
 
                 // Llamar al procedimiento almacenado
-                $alumnos = DB::select('CALL sp_listar_alumnos()');
+                $alumnos = DB::select('CALL sp_listar_alumnos_resumido()');
 
                 Log::info('Alumnos encontrados: ' . count($alumnos));
 
@@ -111,7 +127,7 @@ class alumnoController extends Controller
             DB::beginTransaction();
 
             // Llamar al procedimiento almacenado para crear alumno
-            $resultado = DB::select('CALL sp_crear_alumno(?, ?, ?, ?, ?, ?, ?, ?)', [
+            $resultado = DB::select('CALL sp_crear_alumno(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
                 $request->nombres,
                 $request->apellidos,
                 $request->codigo,
@@ -119,7 +135,9 @@ class alumnoController extends Controller
                 $request->email,
                 $request->celular,
                 $request->username,
-                Hash::make($request->password)
+                Hash::make($request->password),
+                $request->curso, // ID del curso
+                $request->seccion // ID de la sección
             ]);
 
             DB::commit();
@@ -200,21 +218,16 @@ class alumnoController extends Controller
             ], 500);
         }
     }
-
      public function obtenerAlumno($id)
     {
         try {
-            Log::info('Obteniendo información del alumno', ['id' => $id]);
-
-            $procedureExists = DB::select("SHOW PROCEDURE STATUS WHERE Db = ? AND Name = ?", [
-                env('DB_DATABASE'), 'sp_obtener_alumno'
-            ]);
-
-            if (empty($procedureExists)) {
-                throw new \Exception('El procedimiento almacenado sp_obtener_alumno no existe');
+            if (!$id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID de alumno no proporcionado'
+                ], 400);
             }
 
-            // Llamar al procedimiento almacenado
             $alumno = DB::select('CALL sp_obtener_alumno(?)', [$id]);
 
             if (empty($alumno)) {
@@ -226,14 +239,14 @@ class alumnoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $alumno[0] // Tomamos el primer resultado
+                'data' => $alumno[0]
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error al obtener alumno: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener la información del alumno: ' . $e->getMessage()
+                'message' => 'Error al obtener la información del alumno'
             ], 500);
         }
     }
@@ -357,4 +370,39 @@ class alumnoController extends Controller
             ], 500);
         }
     }
+
+    public function cargarCursosPorCiclo($ciclo)
+   {
+       try {
+           $cursos = DB::select('CALL sp_cargar_cursos_por_ciclo(?)', [$ciclo]);
+
+           return response()->json([
+               'success' => true,
+               'data' => $cursos
+           ]);
+       } catch (\Exception $e) {
+           return response()->json([
+               'success' => false,
+               'message' => 'Error al cargar los cursos: ' . $e->getMessage()
+           ], 500);
+        }
+    }
+
+    public function cargarSeccionesPorCurso($cursoId)
+    {
+        try {
+            $secciones = DB::select('CALL sp_cargar_secciones_por_curso(?)', [$cursoId]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $secciones
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar las secciones: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

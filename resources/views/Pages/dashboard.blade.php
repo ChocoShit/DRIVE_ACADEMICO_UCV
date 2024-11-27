@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /* Estilos para el modal de perfil */
     .swal2-show-profile {
         width: 32rem !important;
         padding: 2rem !important;
@@ -115,6 +116,48 @@ document.addEventListener('DOMContentLoaded', function() {
         position: absolute !important;
         right: 1rem !important;
         top: 1rem !important;
+    }
+
+    /* Estilos para el scroll */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #666;
+    }
+
+    /* Ajustes para la tabla */
+    .table-container {
+        max-height: calc(100vh - 300px);
+        overflow-y: auto;
+    }
+
+    /* Ajustes para el modal */
+    @media (max-width: 768px) {
+        .modal-content {
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+    }
+
+    button {
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        transform: scale(1.05);
     }
 </style>
 @endsection
